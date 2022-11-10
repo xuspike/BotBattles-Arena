@@ -68,7 +68,7 @@ export class GameMap extends AcGameObect {
                 // 左下角和右上角不能有障碍物
                 if(r == this.rows - 2 && c == 1 || r == 1 && c == this.cols - 2) continue;
 
-                // 关于对角线对称
+                // 关于中心对称
                 g[r][c] = g[this.rows - 1 - r][this.cols - 1 - c] = true;
                 break;
             }
