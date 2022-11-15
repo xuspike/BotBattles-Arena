@@ -119,10 +119,54 @@
                     <button
                       type="button"
                       class="btn btn-danger"
-                      @click="remove_bot(bot)"
+                      data-bs-toggle="modal"
+                      :data-bs-target="'#remove-bot-modal-' + bot.id"
                     >
                       删除
                     </button>
+
+                    <!-- Modal -->
+                    <div
+                      class="modal fade"
+                      :id="'remove-bot-modal-' + bot.id"
+                      tabindex="-1"
+                    >
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title">删除Bot</h5>
+                            <button
+                              type="button"
+                              class="btn-close"
+                              data-bs-dismiss="modal"
+                              aria-label="Close"
+                            ></button>
+                          </div>
+                          <div class="modal-body">
+                            <div class="mb-3">
+                              <p>你确定要删除该Bot吗？</p>
+                            </div>
+                          </div>
+
+                          <div class="modal-footer">
+                            <button
+                              type="button"
+                              class="btn btn-primary"
+                              @click="remove_bot(bot)"
+                            >
+                              删除
+                            </button>
+                            <button
+                              type="button"
+                              class="btn btn-secondary"
+                              data-bs-dismiss="modal"
+                            >
+                              取消
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
                     <!-- Modal -->
                     <div
@@ -300,6 +344,7 @@ export default {
         },
         success(resp) {
           if (resp.error_message === "success") {
+            Modal.getInstance("#remove-bot-modal-" + bot.id).hide(); // 将浮窗隐藏
             refresh_bots();
           }
         },
