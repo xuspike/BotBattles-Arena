@@ -145,3 +145,5 @@ export class Snake extends AcGameObect {
         }
     }
 }
+
+
