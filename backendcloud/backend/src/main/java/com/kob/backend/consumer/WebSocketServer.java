@@ -3,8 +3,10 @@ package com.kob.backend.consumer;
 import com.alibaba.fastjson.JSONObject;
 import com.kob.backend.consumer.utils.Game;
 import com.kob.backend.consumer.utils.JwtAuthentication;
+import com.kob.backend.mapper.BotMapper;
 import com.kob.backend.mapper.RecordMapper;
 import com.kob.backend.mapper.UserMapper;
+import com.kob.backend.pojo.Bot;
 import com.kob.backend.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,12 +32,13 @@ public class WebSocketServer {
     // 临时匹配池，CopyOnWriteArraySet是线程安全的Set
     private User user; // 当前连接的用户
     private Session session = null; // 每个连接用session来维护
-    private Game game = null;
+    public Game game = null;
 
     private final static String addPlayerUrl = "http://127.0.0.1:3001/player/add/";
     private final static String removePlayerUrl = "http://127.0.0.1:3001/player/remove/";
-    private static RestTemplate restTemplate;
+    public static RestTemplate restTemplate;
     private static UserMapper userMapper;
+    private static BotMapper botMapper;
     public static RecordMapper recordMapper;
     // 由于WebSocketServer不是单例的，需要用先定义static静态变量，再用类名接收
     @Autowired
@@ -53,6 +56,10 @@ public class WebSocketServer {
         WebSocketServer.restTemplate = restTemplate;
     }
 
+    @Autowired
+    public void setBotMapper(BotMapper botMapper) {
+        WebSocketServer.botMapper = botMapper;
+    }
     @OnOpen
     public void onOpen(Session session, @PathParam("token") String token) throws IOException {
         // 建立连接
@@ -80,10 +87,11 @@ public class WebSocketServer {
         }
     }
 
-    public static void startGame(Integer aId, Integer bId) {
+    public static void startGame(Integer aId, Integer aBotId, Integer bId, Integer bBotId) {
         User a = userMapper.selectById(aId), b = userMapper.selectById(bId);
+        Bot botA = botMapper.selectById(aBotId), botB = botMapper.selectById(bBotId);
 
-        Game game = new Game(13, 14, 20, a.getId(), b.getId());
+        Game game = new Game(13, 14, 20, a.getId(), botA, b.getId(), botB);
         game.createMap();
 
 //        由于玩家开始匹配后，在匹配系统会将玩家加入到匹配池中，当玩家关闭游戏后，玩家实际上已经断开连接了
@@ -122,11 +130,12 @@ public class WebSocketServer {
             users.get(b.getId()).sendMessage(respB.toJSONString());
     }
 
-    private void startMatching() {
+    private void startMatching(Integer botId) {
         System.out.println("start matching！");
         MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
         data.add("user_id", this.user.getId().toString());
         data.add("rating", this.user.getRating().toString());
+        data.add("bot_id", botId.toString());
         restTemplate.postForEntity(addPlayerUrl, data, String.class); // String.class是返回值的class
     }
 
@@ -139,9 +148,11 @@ public class WebSocketServer {
 
     public void move(int direction) {
         if(game.getPlayerA().getId().equals(user.getId())) {
-            game.setNextStepA(direction);
+            if(game.getPlayerA().getBotId().equals(-1)) //亲自出马
+                game.setNextStepA(direction);
         } else if(game.getPlayerB().getId().equals(user.getId())) {
-            game.setNextStepB(direction);
+            if(game.getPlayerB().getBotId().equals(-1)) // 亲自出马
+                game.setNextStepB(direction);
         }
     }
 
@@ -153,7 +164,7 @@ public class WebSocketServer {
         String event = data.getString("event");
         // 反过来调用equals()，可减少避免event为空时抛出异常
         if("start-matching".equals(event)) {
-            startMatching();
+            startMatching(data.getInteger("bot_id"));
         } else if("stop-matching".equals(event)) {
             stopMatching();
         } else if("move".equals(event)) {
