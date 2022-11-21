@@ -37,7 +37,7 @@ public class WebSocketServer {
     private final static String addPlayerUrl = "http://127.0.0.1:3001/player/add/";
     private final static String removePlayerUrl = "http://127.0.0.1:3001/player/remove/";
     public static RestTemplate restTemplate;
-    private static UserMapper userMapper;
+    public static UserMapper userMapper;
     private static BotMapper botMapper;
     public static RecordMapper recordMapper;
     // 由于WebSocketServer不是单例的，需要用先定义static静态变量，再用类名接收
@@ -64,7 +64,6 @@ public class WebSocketServer {
     public void onOpen(Session session, @PathParam("token") String token) throws IOException {
         // 建立连接
         this.session = session;
-        System.out.println("connected!");
         // JwtAuthentication是再consumer/utils中封装的类，用token判断用户是否存在
         Integer userId = JwtAuthentication.getUserId(token);
         this.user = userMapper.selectById(userId);
@@ -75,13 +74,11 @@ public class WebSocketServer {
             this.session.close();
         }
 
-        System.out.println(users);
     }
 
     @OnClose
     public void onClose() {
         // 关闭连接
-        System.out.println("disconnected!");
         if(this.user != null) {
             users.remove(this.user.getId());
         }
@@ -131,7 +128,6 @@ public class WebSocketServer {
     }
 
     private void startMatching(Integer botId) {
-        System.out.println("start matching！");
         MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
         data.add("user_id", this.user.getId().toString());
         data.add("rating", this.user.getRating().toString());
@@ -140,7 +136,6 @@ public class WebSocketServer {
     }
 
     private void stopMatching() {
-        System.out.println("stop matching！");
         MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
         data.add("user_id", this.user.getId().toString());
         restTemplate.postForEntity(removePlayerUrl, data, String.class);
@@ -159,7 +154,6 @@ public class WebSocketServer {
     @OnMessage
     public void onMessage(String message, Session session) { // 一般当做路由，判断把任务交给谁处理
         // 从Client接收消息
-        System.out.println("receive message!");
         JSONObject data = JSONObject.parseObject(message);
         String event = data.getString("event");
         // 反过来调用equals()，可减少避免event为空时抛出异常
