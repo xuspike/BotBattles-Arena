@@ -67,7 +67,6 @@ export class GameMap extends AcGameObect {
             this.ctx.canvas.focus();
 
             this.ctx.canvas.addEventListener("keydown", e => {
-                console.log(e.key);
                 let d = -1;
                 if(e.key === 'w') d = 0;
                 else if(e.key === 'd') d = 1;

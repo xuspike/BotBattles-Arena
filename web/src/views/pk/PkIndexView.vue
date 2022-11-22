@@ -1,28 +1,48 @@
 <template>
+  <div
+    class="toast show"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    v-if="$store.state.pk.status === 'playing'"
+    style="position: absolute; right: 0; width: 30vw"
+  >
+    <div class="toast-header">
+      <img
+        style="width: 2vw; border-radius: 50%"
+        src="@/assets/images/1_d7f3b93efd-kob.jpg"
+        alt=""
+      />
+      <strong class="me-auto" style="margin-left: 5px">游戏开始</strong>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="toast"
+        aria-label="Close"
+      ></button>
+    </div>
+    <div class="toast-body">
+      你出生在
+      <span
+        style="color: blue"
+        v-if="parseInt($store.state.user.id) === $store.state.pk.a_id"
+        >蓝方
+      </span>
+      <span
+        color="red"
+        v-else-if="parseInt($store.state.user.id) === $store.state.pk.b_id"
+      >
+        红方
+      </span>
+    </div>
+  </div>
   <PlayGround v-if="$store.state.pk.status === 'playing'" />
   <MatchGround v-if="$store.state.pk.status === 'matching'" />
   <ResultBoard v-if="$store.state.pk.loser !== 'none'" />
-  <div
-    class="user-color"
-    v-if="
-      $store.state.pk.status === 'playing' &&
-      parseInt($store.state.user.id) === $store.state.pk.a_id
-    "
-  >
-    左下角
-  </div>
-  <div
-    class="user-color"
-    v-if="
-      $store.state.pk.status === 'playing' &&
-      parseInt($store.state.user.id) === $store.state.pk.b_id
-    "
-  >
-    右上角
-  </div>
 </template>
 
 <script>
+import $ from "jquery";
 import PlayGround from "@/components/PlayGround.vue";
 import MatchGround from "@/components/MatchGround.vue";
 import ResultBoard from "@/components/ResultBoard.vue";
@@ -56,6 +76,10 @@ export default {
         store.commit("updateSocket", socket);
       };
 
+      const hide_toast = () => {
+        $(".toast").fadeOut();
+      };
+
       socket.onmessage = (msg) => {
         const data = JSON.parse(msg.data);
         if (data.event === "success-matching") {
@@ -69,13 +93,12 @@ export default {
           }, 200);
           store.commit("updateGame", data.game);
         } else if (data.event === "move") {
-          console.log(data);
+          hide_toast();
           const game = store.state.pk.gameObject;
           const [snake0, snake1] = game.snakes;
           snake0.set_direction(data.a_direction);
           snake1.set_direction(data.b_direction);
         } else if (data.event === "result") {
-          console.log(data);
           const game = store.state.pk.gameObject;
           const [snake0, snake1] = game.snakes;
 
