@@ -145,7 +145,7 @@ div.user-select-bot {
 div.user-select-bot > select {
   margin: 0 auto;
   width: 10vw;
-  font-size: 20px;
+  font-size: 16px;
   border-radius: 5px;
   height: 4.5vh;
 }

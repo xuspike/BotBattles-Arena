@@ -25,6 +25,7 @@ import RecordIndexViewVue from "./views/record/RecordIndexView.vue";
 import RecordContentViewVue from "./views/record/RecordContentView.vue";
 import RankListIndexViewVue from "./views/ranklist/RankListIndexView.vue";
 import UserBotIndexViewVue from "./views/user/bot/UserBotIndexView.vue";
+import $ from "jquery";
 
 export default {
   components: {
@@ -37,21 +38,39 @@ export default {
   },
   setup() {
     const store = useStore();
-    const jwt_token =
-      "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIyOGRhN2E1YjNmOWY0YzE0OWMzM2Y5MGU2OTJiZTRlMSIsInN1YiI6IjIiLCJpc3MiOiJzZyIsImlhdCI6MTY2OTEzMDUzMSwiZXhwIjoxNjcwMzQwMTMxfQ.vxdLF0LW5-x1Hlll_LCFte9ATX5_LLr1Zq2n2DVXgEg";
-    if (jwt_token) {
-      store.commit("updateToken", jwt_token);
-      store.dispatch("getinfo", {
-        success() {
-          store.commit("updatePullingInfo", false);
-        },
-        error() {
-          store.commit("updatePullingInfo", false);
-        },
-      });
-    } else {
-      store.commit("updatePullingInfo", false);
-    }
+
+    $.ajax({
+      url: "https://app4069.acapp.acwing.com.cn:2706/api/user/account/acwing/acapp/apply_code/",
+      type: "GET",
+      success: (resp) => {
+        // 成功后不要将jwt_token
+        if (resp.result === "success") {
+          store.state.user.AcWingOS.api.oauth2.authorize(
+            resp.appid,
+            resp.redirect_uri,
+            resp.scope,
+            resp.state,
+            (resp) => {
+              if (resp.result === "success") {
+                store.commit("updateToken", resp.jwt_token);
+                store.dispatch("getinfo", {
+                  success() {
+                    store.commit("updatePullingInfo", false);
+                  },
+                  error() {
+                    store.commit("updatePullingInfo", false);
+                  },
+                });
+              } else {
+                store.state.user.AcWingOS.api.window.close(); // 关闭acapp窗口
+              }
+            }
+          );
+        } else {
+          store.state.user.AcWingOS.api.window.close();
+        }
+      },
+    });
   },
 };
 </script>

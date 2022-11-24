@@ -55,7 +55,7 @@ export default {
 
 <style scoped>
 div.result-board {
-  height: 30vh;
+  height: 40vh;
   width: 30vw;
   background-color: rgba(50, 50, 50, 0.5);
   position: absolute;

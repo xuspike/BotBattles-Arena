@@ -1,6 +1,7 @@
 import $ from 'jquery';
 export default {
     state: {
+        AcWingOS: "AcWingOS",
         id: "",
         username: "",
         photo: "",

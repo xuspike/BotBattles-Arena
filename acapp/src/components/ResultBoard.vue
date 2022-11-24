@@ -24,9 +24,7 @@
     <div class="result-board-text" v-else>Win</div>
 
     <div class="result-board-btn">
-      <button @click="restart" type="button" class="btn btn-warning btn-lg">
-        再来!
-      </button>
+      <button @click="restart" type="button">再来!</button>
     </div>
   </div>
 </template>
@@ -55,12 +53,15 @@ export default {
 
 <style scoped>
 div.result-board {
-  height: 30vh;
+  height: 40vh;
   width: 30vw;
   background-color: rgba(50, 50, 50, 0.5);
   position: absolute;
-  top: 30vh;
-  left: 35vw;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
 }
 div.result-board-text {
   text-align: center;
@@ -73,5 +74,15 @@ div.result-board-text {
 div.result-board-btn {
   text-align: center;
   padding-top: 7vh;
+}
+
+.result-board-btn > button {
+  font-size: 20px;
+  border-radius: 5px;
+  background-color: #ffc310;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+  user-select: none;
 }
 </style>

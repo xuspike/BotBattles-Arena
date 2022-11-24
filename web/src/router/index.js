@@ -7,6 +7,7 @@ import UserBotIndexView from '../views/user/bot/UserBotIndexView';
 import NotFound from '../views/error/NotFound';
 import UserAccountLoginView from '../views/user/account/UserAccountLoginView';
 import UserAccountRegisterView from '../views/user/account/UserAccountRegisterView';
+import UserAccountAcwingWebReceiveCode from '../views/user/account/UserAccountAcwingWebReceiveCode';
 import store from '../store/index';
 
 const routes = [
@@ -72,6 +73,14 @@ const routes = [
     name: "user_bot_index",
     meta: {
       requestAuth: true,
+    }
+  },
+  {
+    path: '/user/account/acwing/web/receive_code/',
+    name: "user_account_acwing_web_receive_code",
+    component: UserAccountAcwingWebReceiveCode,
+    meta: {
+      requestAuth: false,
     }
   },
   {

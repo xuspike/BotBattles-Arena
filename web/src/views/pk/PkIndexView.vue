@@ -29,7 +29,7 @@
         >蓝方
       </span>
       <span
-        color="red"
+        style="color: red"
         v-else-if="parseInt($store.state.user.id) === $store.state.pk.b_id"
       >
         红方
