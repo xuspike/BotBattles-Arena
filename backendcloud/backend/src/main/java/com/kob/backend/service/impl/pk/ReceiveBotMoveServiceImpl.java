@@ -1,7 +1,7 @@
 package com.kob.backend.service.impl.pk;
 
 import com.kob.backend.consumer.WebSocketServer;
-import com.kob.backend.consumer.utils.Game;
+import com.kob.backend.consumer.utils.SnakeGame.SnakeGame;
 import com.kob.backend.service.pk.ReceiveBotMoveService;
 import org.springframework.stereotype.Service;
 
@@ -10,12 +10,12 @@ public class ReceiveBotMoveServiceImpl implements ReceiveBotMoveService {
     @Override
     public String receiveBotMove(Integer userId, Integer direction) {
         if(WebSocketServer.users.get(userId) != null) {
-            Game game = WebSocketServer.users.get(userId).game;
-            if(game != null) {
-                if(game.getPlayerA().getId().equals(userId)) {
-                    game.setNextStepA(direction);
-                } else if(game.getPlayerB().getId().equals(userId)) {
-                    game.setNextStepB(direction);
+            SnakeGame snakeGame = WebSocketServer.users.get(userId).snakeGame;
+            if(snakeGame != null) {
+                if(snakeGame.getPlayerA().getId().equals(userId)) {
+                    snakeGame.setNextStepA(direction);
+                } else if(snakeGame.getPlayerB().getId().equals(userId)) {
+                    snakeGame.setNextStepB(direction);
                 }
             }
         }

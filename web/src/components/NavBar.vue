@@ -53,6 +53,12 @@
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
+              <img
+                class="avatar"
+                :src="$store.state.user.photo"
+                alt=""
+                style="width: 2vw"
+              />
               {{ $store.state.user.username }}
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -117,4 +123,8 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.avatar {
+  border-radius: 50%;
+}
+</style>

@@ -1,9 +1,11 @@
 package com.kob.backend.consumer;
 
 import com.alibaba.fastjson.JSONObject;
-import com.kob.backend.consumer.utils.Game;
+import com.kob.backend.consumer.utils.SnakeGame.SnakeGame;
+import com.kob.backend.consumer.utils.GobangGame.GobangGame;
 import com.kob.backend.consumer.utils.JwtAuthentication;
 import com.kob.backend.mapper.BotMapper;
+import com.kob.backend.mapper.GobangRecordMapper;
 import com.kob.backend.mapper.RecordMapper;
 import com.kob.backend.mapper.UserMapper;
 import com.kob.backend.pojo.Bot;
@@ -18,9 +20,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 @Component
 @ServerEndpoint("/websocket/{token}")  // 注意不要以'/'结尾
@@ -32,7 +32,9 @@ public class WebSocketServer {
     // 临时匹配池，CopyOnWriteArraySet是线程安全的Set
     private User user; // 当前连接的用户
     private Session session = null; // 每个连接用session来维护
-    public Game game = null;
+    public SnakeGame snakeGame = null;
+
+    public GobangGame GobangGame = null;
 
     private final static String addPlayerUrl = "http://127.0.0.1:3001/player/add/";
     private final static String removePlayerUrl = "http://127.0.0.1:3001/player/remove/";
@@ -41,6 +43,7 @@ public class WebSocketServer {
     private static BotMapper botMapper;
     public static RecordMapper recordMapper;
     // 由于WebSocketServer不是单例的，需要用先定义static静态变量，再用类名接收
+    public static GobangRecordMapper gobangRecordMapper;
     @Autowired
     public void setUserMapper(UserMapper userMapper) {
         WebSocketServer.userMapper = userMapper;
@@ -51,6 +54,10 @@ public class WebSocketServer {
         WebSocketServer.recordMapper = recordMapper;
     }
 
+    @Autowired
+    public void setGobangRecordMapper(GobangRecordMapper gobangRecordMapper) {
+        WebSocketServer.gobangRecordMapper = gobangRecordMapper;
+    }
     @Autowired
     public void setRestTemplate(RestTemplate restTemplate) {
         WebSocketServer.restTemplate = restTemplate;
@@ -84,31 +91,31 @@ public class WebSocketServer {
         }
     }
 
-    public static void startGame(Integer aId, Integer aBotId, Integer bId, Integer bBotId) {
+    public static void startSnakeGame(Integer aId, Integer aBotId, Integer bId, Integer bBotId) {
         User a = userMapper.selectById(aId), b = userMapper.selectById(bId);
         Bot botA = botMapper.selectById(aBotId), botB = botMapper.selectById(bBotId);
 
-        Game game = new Game(13, 14, 20, a.getId(), botA, b.getId(), botB);
-        game.createMap();
+        SnakeGame snakeGame = new SnakeGame(13, 14, 20, a.getId(), botA, b.getId(), botB);
+        snakeGame.createMap();
 
 //        由于玩家开始匹配后，在匹配系统会将玩家加入到匹配池中，当玩家关闭游戏后，玩家实际上已经断开连接了
-//        但是匹配系统仍然会将两名顽疾匹配在一起，并将结果返回给ws端，ws端会调用users.get(xx.getId())
+//        但是匹配系统仍然会将两名玩家匹配在一起，并将结果返回给ws端，ws端会调用users.get(xx.getId())
 //        从而产生异常
         if(users.get(a.getId()) != null)
-            users.get(a.getId()).game = game;
+            users.get(a.getId()).snakeGame = snakeGame;
         if(users.get(b.getId()) != null)
-            users.get(b.getId()).game = game;
-        game.start(); // 另起线程执行
+            users.get(b.getId()).snakeGame = snakeGame;
+        snakeGame.start(); // 另起线程执行
 
         // 将玩家信息和地图封装在一起
         JSONObject respGame = new JSONObject();
-        respGame.put("a_id", game.getPlayerA().getId());
-        respGame.put("a_sx", game.getPlayerA().getSx());
-        respGame.put("a_xy", game.getPlayerA().getSy());
-        respGame.put("b_id", game.getPlayerB().getId());
-        respGame.put("b_sx", game.getPlayerB().getSx());
-        respGame.put("b_xy", game.getPlayerB().getSy());
-        respGame.put("map", game.getG());
+        respGame.put("a_id", snakeGame.getPlayerA().getId());
+        respGame.put("a_sx", snakeGame.getPlayerA().getSx());
+        respGame.put("a_xy", snakeGame.getPlayerA().getSy());
+        respGame.put("b_id", snakeGame.getPlayerB().getId());
+        respGame.put("b_sx", snakeGame.getPlayerB().getSx());
+        respGame.put("b_xy", snakeGame.getPlayerB().getSy());
+        respGame.put("map", snakeGame.getG());
 
         JSONObject respA = new JSONObject();
         respA.put("event", "success-matching");
@@ -127,27 +134,63 @@ public class WebSocketServer {
             users.get(b.getId()).sendMessage(respB.toJSONString());
     }
 
-    private void startMatching(Integer botId) {
+    public static void startGobangGame(Integer aId, Integer aBotId, Integer bId, Integer bBotId) {
+        User a = userMapper.selectById(aId), b = userMapper.selectById(bId);
+        Bot botA = botMapper.selectById(aBotId), botB = botMapper.selectById(bBotId);
+
+        GobangGame GobangGame = new GobangGame(aId, botA, bId, botB);
+
+        if(users.get(a.getId()) != null)
+            users.get(a.getId()).GobangGame = GobangGame;
+        if(users.get(b.getId()) != null)
+            users.get(b.getId()).GobangGame = GobangGame;
+        GobangGame.start(); // 另起线程执行
+
+        // 将玩家信息和地图封装在一起
+        JSONObject respGame = new JSONObject();
+        respGame.put("a_id", GobangGame.getPlayerA().getId());
+        respGame.put("b_id", GobangGame.getPlayerB().getId());
+
+        JSONObject respA = new JSONObject();
+        respA.put("event", "success-matching");
+        respA.put("opponent_username", b.getUsername());
+        respA.put("opponent_photo", b.getPhoto());
+        respA.put("game", respGame);
+        if(users.get(a.getId()) != null)
+            users.get(a.getId()).sendMessage(respA.toJSONString());
+
+        JSONObject respB = new JSONObject();
+        respB.put("event", "success-matching");
+        respB.put("opponent_username", a.getUsername());
+        respB.put("opponent_photo", a.getPhoto());
+        respB.put("game", respGame);
+        if(users.get(b.getId()) != null)
+            users.get(b.getId()).sendMessage(respB.toJSONString());
+    }
+
+    private void startMatching(Integer botId, String mode) {
         MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
         data.add("user_id", this.user.getId().toString());
         data.add("rating", this.user.getRating().toString());
         data.add("bot_id", botId.toString());
+        data.add("mode", mode);
         restTemplate.postForEntity(addPlayerUrl, data, String.class); // String.class是返回值的class
     }
 
-    private void stopMatching() {
+    private void stopMatching(String mode) {
         MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
         data.add("user_id", this.user.getId().toString());
+        data.add("mode", mode);
         restTemplate.postForEntity(removePlayerUrl, data, String.class);
     }
 
     public void move(int direction) {
-        if(game.getPlayerA().getId().equals(user.getId())) {
-            if(game.getPlayerA().getBotId().equals(-1)) //亲自出马
-                game.setNextStepA(direction);
-        } else if(game.getPlayerB().getId().equals(user.getId())) {
-            if(game.getPlayerB().getBotId().equals(-1)) // 亲自出马
-                game.setNextStepB(direction);
+        if(snakeGame.getPlayerA().getId().equals(user.getId())) {
+            if(snakeGame.getPlayerA().getBotId().equals(-1)) //亲自出马
+                snakeGame.setNextStepA(direction);
+        } else if(snakeGame.getPlayerB().getId().equals(user.getId())) {
+            if(snakeGame.getPlayerB().getBotId().equals(-1)) // 亲自出马
+                snakeGame.setNextStepB(direction);
         }
     }
 
@@ -156,11 +199,12 @@ public class WebSocketServer {
         // 从Client接收消息
         JSONObject data = JSONObject.parseObject(message);
         String event = data.getString("event");
-        // 反过来调用equals()，可减少避免event为空时抛出异常
+        String mode = data.getString("mode");
+        // 反过来调用equals()，可避免event为空时抛出异常
         if("start-matching".equals(event)) {
-            startMatching(data.getInteger("bot_id"));
+            startMatching(data.getInteger("bot_id"), mode);
         } else if("stop-matching".equals(event)) {
-            stopMatching();
+            stopMatching(mode);
         } else if("move".equals(event)) {
             move(data.getInteger("direction"));
         }

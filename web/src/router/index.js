@@ -8,13 +8,14 @@ import NotFound from '../views/error/NotFound';
 import UserAccountLoginView from '../views/user/account/UserAccountLoginView';
 import UserAccountRegisterView from '../views/user/account/UserAccountRegisterView';
 import UserAccountAcwingWebReceiveCode from '../views/user/account/UserAccountAcwingWebReceiveCode';
+import HomeView from '../views/home/HomeView';
 import store from '../store/index';
 
 const routes = [
   {
     path: '/',
     name: "home",
-    redirect: '/pk/',
+    component: HomeView,
     meta: {
       requestAuth: true,
     }
@@ -114,7 +115,6 @@ router.beforeEach((to, from, next) => {
         next();
       },
       error() {
-        alert("验证过期，请重新登录！");
         store.dispatch("logout") // 过期后就将token清空，防止下一句代码跳转到登录页面又alert一次
         router.push({name: "user_account_login"});
       },
@@ -128,7 +128,6 @@ router.beforeEach((to, from, next) => {
     if(flag) {
       next();
     } else {
-      alert("请先进行登录！");
       next({name: "user_account_login"});
     }
   } else {

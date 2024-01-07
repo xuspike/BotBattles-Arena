@@ -1,6 +1,6 @@
 <template>
   <div class="container content-field">
-    <div class="card">
+    <div class="card" style="background-color: #34495e">
       <div class="card-body">
         <slot></slot>
       </div>

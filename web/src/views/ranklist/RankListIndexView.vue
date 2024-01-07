@@ -1,6 +1,6 @@
 <template>
   <ContentField>
-    <table class="table table-striped table-hover">
+    <table class="table rwd-table">
       <thead>
         <tr>
           <th>玩家</th>
@@ -40,10 +40,10 @@
 </template>
 
 <script>
-import ContentField from "../../components/ContentField.vue";
 import { useStore } from "vuex";
 import $ from "jquery";
 import { ref } from "vue";
+import ContentField from "../../components/ContentField.vue";
 
 export default {
   components: {
@@ -82,7 +82,7 @@ export default {
     const pull_page = (page) => {
       current_page = page;
       $.ajax({
-        url: "https://app4069.acapp.acwing.com.cn:2706/api/ranklist/getlist/",
+        url: "http://127.0.0.1:3000/api/ranklist/getlist/",
         type: "get",
         data: {
           page,
@@ -112,9 +112,108 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 img.record-user-photo {
-  width: 4vh;
+  width: 5vh;
   border-radius: 50%;
+}
+
+$breakpoint-alpha: 480px; // adjust to your needs
+
+.rwd-table {
+  margin: 1em 0;
+  min-width: 300px; // adjust to your needs
+
+  tr {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+  }
+
+  th {
+    display: none; // for accessibility, use a visually hidden method here instead! Thanks, reddit!
+  }
+
+  td {
+    display: block;
+
+    &:first-child {
+      padding-top: 0.5em;
+    }
+    &:last-child {
+      padding-bottom: 0.5em;
+    }
+
+    &:before {
+      content: attr(data-th) ": "; // who knew you could do this? The internet, that's who.
+      font-weight: bold;
+
+      // optional stuff to make it look nicer
+      width: 6.5em; // magic number :( adjust according to your own content
+      display: inline-block;
+      // end options
+
+      @media (min-width: $breakpoint-alpha) {
+        display: none;
+      }
+    }
+  }
+
+  th,
+  td {
+    text-align: left;
+
+    @media (min-width: $breakpoint-alpha) {
+      display: table-cell;
+      padding: 0.25em 0.5em;
+
+      &:first-child {
+        padding-left: 0;
+      }
+
+      &:last-child {
+        padding-right: 0;
+      }
+    }
+  }
+}
+
+// presentational styling
+
+@import "https://fonts.googleapis.com/css?family=Montserrat:300,400,700";
+
+body {
+  padding: 0 2em;
+  font-family: Montserrat, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  color: #444;
+  background: #eee;
+}
+
+h1 {
+  font-weight: normal;
+  letter-spacing: -1px;
+  color: #34495e;
+}
+
+.rwd-table {
+  background: #34495e;
+  color: #fff;
+  border-radius: 0.4em;
+  overflow: hidden;
+  tr {
+    border-color: lighten(#34495e, 10%);
+  }
+  th,
+  td {
+    margin: 0.5em 1em;
+    @media (min-width: $breakpoint-alpha) {
+      padding: 1em !important;
+    }
+  }
+  th,
+  td:before {
+    color: #dd5;
+  }
 }
 </style>

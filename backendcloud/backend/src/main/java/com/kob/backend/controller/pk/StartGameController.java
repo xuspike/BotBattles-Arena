@@ -20,6 +20,8 @@ public class StartGameController {
         Integer aBotId = Integer.parseInt(Objects.requireNonNull(data.getFirst("a_bot_id")));
         Integer bId = Integer.parseInt(Objects.requireNonNull(data.getFirst("b_id")));
         Integer bBotId = Integer.parseInt(Objects.requireNonNull(data.getFirst("b_bot_id")));
-        return startGameService.startGame(aId, aBotId, bId, bBotId);
+        String mode = data.getFirst("mode");
+        System.out.println("controller" + mode);
+        return startGameService.startGame(aId, aBotId, bId, bBotId, mode);
     }
 }

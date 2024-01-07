@@ -1,15 +1,16 @@
 export default{
   state: {
-    status: "matching", // matching表示匹配界面，playing表示对战界面
+    status: "game-selecting", // game-selecting表示选择界面，matching表示匹配界面，playing表示对战界面
+    mode: "", // snake表示贪吃蛇,gobang表示五子棋
     socket: null, // 前端和后端建立的连接
     opponent_username: "",
     opponent_photo: "",
     gamemap: null,
     a_id: 0,
-    a_sx: 0,
+    a_sx: 0, // 玩家A贪吃蛇起始横坐标
     a_sy: 0,
     b_id: 0,
-    b_sx: 0,
+    b_sx: 0,  // 玩家B贪吃蛇起始横坐标
     b_sy: 0,
     gameObject: null,
     loser: "none", // none、all、A、B
@@ -27,6 +28,12 @@ export default{
     },
     updateStatus(state, status) {
         state.status = status;
+    },
+    updateIsRobot(state, resp) {
+      state.is_robot = resp;
+    },
+    updateMode(state, mode) {
+      state.mode = mode;
     },
     updateGame(state, game) {
         state.gamemap = game.map;

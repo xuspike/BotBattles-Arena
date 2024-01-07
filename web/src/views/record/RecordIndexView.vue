@@ -1,6 +1,6 @@
 <template>
   <ContentField>
-    <table class="table table-striped table-hover" style="text-align: center">
+    <table class="table rwd-table" style="text-align: center">
       <thead>
         <tr>
           <th>蓝色方</th>
@@ -31,7 +31,7 @@
           <td>
             <button
               type="button"
-              class="btn btn-secondary"
+              class="custom-btn btn-1"
               @click="open_record_content(record.record.id)"
             >
               查看录像
@@ -79,6 +79,7 @@ export default {
     let current_page = 1;
     let total_records = 0;
     let pages = ref([]);
+    let mode = "snake";
 
     const click_page = (page) => {
       if (page === -2) page = current_page - 1;
@@ -106,7 +107,7 @@ export default {
     const pull_page = (page) => {
       current_page = page;
       $.ajax({
-        url: "https://app4069.acapp.acwing.com.cn:2706/api/record/getlist/",
+        url: "http://127.0.0.1:3000/api/record/getlist/",
         type: "get",
         data: {
           page,
@@ -145,6 +146,7 @@ export default {
       for (const record of records.value) {
         if (record.record.id === recordId) {
           store.commit("updateIsRecord", true);
+          store.commit("updateMode", mode);
           store.commit("updateGame", {
             map: stringTo2D(record.record.map),
             a_id: record.record.aid,
@@ -154,6 +156,7 @@ export default {
             b_sx: record.record.bsx,
             b_sy: record.record.bsy,
           });
+          console.log(record);
           store.commit("updateSteps", {
             a_steps: record.record.asteps,
             b_steps: record.record.bsteps,
@@ -180,9 +183,137 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 img.record-user-photo {
   width: 5vh;
   border-radius: 50%;
+}
+
+$breakpoint-alpha: 480px; // adjust to your needs
+
+.rwd-table {
+  margin: 1em 0;
+  min-width: 300px; // adjust to your needs
+
+  tr {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+  }
+
+  th {
+    display: none; // for accessibility, use a visually hidden method here instead! Thanks, reddit!
+  }
+
+  td {
+    display: block;
+
+    &:first-child {
+      padding-top: 0.5em;
+    }
+    &:last-child {
+      padding-bottom: 0.5em;
+    }
+
+    &:before {
+      content: attr(data-th) ": "; // who knew you could do this? The internet, that's who.
+      font-weight: bold;
+
+      // optional stuff to make it look nicer
+      width: 6.5em; // magic number :( adjust according to your own content
+      display: inline-block;
+      // end options
+
+      @media (min-width: $breakpoint-alpha) {
+        display: none;
+      }
+    }
+  }
+
+  th,
+  td {
+    text-align: left;
+
+    @media (min-width: $breakpoint-alpha) {
+      display: table-cell;
+      padding: 0.25em 0.5em;
+
+      &:first-child {
+        padding-left: 0;
+      }
+
+      &:last-child {
+        padding-right: 0;
+      }
+    }
+  }
+}
+
+// presentational styling
+
+@import "https://fonts.googleapis.com/css?family=Montserrat:300,400,700";
+
+h1 {
+  font-weight: normal;
+  letter-spacing: -1px;
+  color: #34495e;
+}
+
+.rwd-table {
+  background: #34495e;
+  color: #fff;
+  border-radius: 0.4em;
+  overflow: hidden;
+  tr {
+    border-color: lighten(#34495e, 10%);
+  }
+  th,
+  td {
+    margin: 0.5em 1em;
+    @media (min-width: $breakpoint-alpha) {
+      padding: 1em !important;
+    }
+    line-height: 24px;
+  }
+  th,
+  td:before {
+    color: #dd5;
+  }
+}
+
+.custom-btn {
+  width: 130px;
+  height: 40px;
+  color: #fff;
+  border-radius: 5px;
+  padding: 10px 25px;
+  font-family: "Lato", sans-serif;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+  box-shadow: inset 2px 2px 2px 0px rgba(255, 255, 255, 0.5),
+    7px 7px 20px 0px rgba(0, 0, 0, 0.1), 4px 4px 5px 0px rgba(0, 0, 0, 0.1);
+  outline: none;
+}
+
+/* 1 */
+.btn-1 {
+  background: rgb(6, 14, 131);
+  background: linear-gradient(
+    0deg,
+    rgba(6, 14, 131, 1) 0%,
+    rgba(12, 25, 180, 1) 100%
+  );
+  border: none;
+}
+.btn-1:hover {
+  background: rgb(0, 3, 255);
+  background: linear-gradient(
+    0deg,
+    rgba(0, 3, 255, 1) 0%,
+    rgba(2, 126, 251, 1) 100%
+  );
 }
 </style>

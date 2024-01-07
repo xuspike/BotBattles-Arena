@@ -2,16 +2,16 @@
   <div class="container">
     <div class="row">
       <div class="col-3">
-        <div class="card" style="margin-top: 20px">
+        <div class="card bg-dark" style="margin-top: 20px">
           <div class="card-body">
             <img :src="$store.state.user.photo" alt="" style="width: 100%" />
           </div>
         </div>
       </div>
       <div class="col-9">
-        <div class="card" style="margin-top: 20px">
+        <div class="card bg-dark" style="margin-top: 20px">
           <div class="card-header">
-            <span style="font-size: 130%">我的Bot</span>
+            <span style="font-size: 130%; color: #fff">我的Bot</span>
             <button
               type="button"
               class="btn btn-primary float-end"
@@ -22,7 +22,12 @@
             </button>
 
             <!-- Modal -->
-            <div class="modal fade" id="add-bot-btn" tabindex="-1">
+            <div
+              class="modal fade"
+              id="add-bot-btn"
+              tabindex="-1"
+              style="color: black"
+            >
               <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                   <div class="modal-header">
@@ -94,7 +99,7 @@
             </div>
           </div>
           <div class="card-body">
-            <table class="table table-striped table-hover">
+            <table class="table rwd-table" style="text-align: center">
               <thead>
                 <tr>
                   <th>Bot名称</th>
@@ -130,6 +135,7 @@
                       class="modal fade"
                       :id="'remove-bot-modal-' + bot.id"
                       tabindex="-1"
+                      style="color: black"
                     >
                       <div class="modal-dialog">
                         <div class="modal-content">
@@ -173,6 +179,7 @@
                       class="modal fade"
                       :id="'update-bot-modal-' + bot.id"
                       tabindex="-1"
+                      style="color: black"
                     >
                       <div class="modal-dialog modal-xl">
                         <div class="modal-content">
@@ -292,7 +299,7 @@ export default {
 
     const refresh_bots = () => {
       $.ajax({
-        url: "https://app4069.acapp.acwing.com.cn:2706/api/user/bot/getlist/",
+        url: "http://127.0.0.1:3000/api/user/bot/getlist/",
         type: "get",
         headers: {
           Authorization: "Bearer " + store.state.user.token,
@@ -307,7 +314,7 @@ export default {
     const add_bot = () => {
       botadd.error_message = "";
       $.ajax({
-        url: "https://app4069.acapp.acwing.com.cn:2706/api/user/bot/add/",
+        url: "http://127.0.0.1:3000/api/user/bot/add/",
         type: "post",
         data: {
           title: botadd.title,
@@ -334,7 +341,7 @@ export default {
 
     const remove_bot = (bot) => {
       $.ajax({
-        url: "https://app4069.acapp.acwing.com.cn:2706/api/user/bot/remove/",
+        url: "http://127.0.0.1:3000/api/user/bot/remove/",
         type: "post",
         data: {
           bot_id: bot.id,
@@ -354,7 +361,7 @@ export default {
     const update_bot = (bot) => {
       botadd.error_message = "";
       $.ajax({
-        url: "https://app4069.acapp.acwing.com.cn:2706/api/user/bot/update/",
+        url: "http://127.0.0.1:3000/api/user/bot/update/",
         type: "post",
         data: {
           bot_id: bot.id,
@@ -387,8 +394,98 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 div.error-message {
   color: red;
+}
+
+$breakpoint-alpha: 480px; // adjust to your needs
+
+.rwd-table {
+  margin: 1em 0;
+  min-width: 300px; // adjust to your needs
+
+  tr {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+  }
+
+  th {
+    display: none; // for accessibility, use a visually hidden method here instead! Thanks, reddit!
+  }
+
+  td {
+    display: block;
+
+    &:first-child {
+      padding-top: 0.5em;
+    }
+    &:last-child {
+      padding-bottom: 0.5em;
+    }
+
+    &:before {
+      content: attr(data-th) ": "; // who knew you could do this? The internet, that's who.
+      font-weight: bold;
+
+      // optional stuff to make it look nicer
+      width: 6.5em; // magic number :( adjust according to your own content
+      display: inline-block;
+      // end options
+
+      @media (min-width: $breakpoint-alpha) {
+        display: none;
+      }
+    }
+  }
+
+  th,
+  td {
+    text-align: left;
+
+    @media (min-width: $breakpoint-alpha) {
+      display: table-cell;
+      padding: 0.25em 0.5em;
+
+      &:first-child {
+        padding-left: 0;
+      }
+
+      &:last-child {
+        padding-right: 0;
+      }
+    }
+  }
+}
+
+// presentational styling
+
+@import "https://fonts.googleapis.com/css?family=Montserrat:300,400,700";
+
+h1 {
+  font-weight: normal;
+  letter-spacing: -1px;
+  color: #34495e;
+}
+
+.rwd-table {
+  background: #34495e;
+  color: #fff;
+  border-radius: 0.4em;
+  overflow: hidden;
+  tr {
+    border-color: lighten(#34495e, 10%);
+  }
+  th,
+  td {
+    margin: 0.5em 1em;
+    @media (min-width: $breakpoint-alpha) {
+      padding: 1em !important;
+    }
+  }
+  th,
+  td:before {
+    color: #dd5;
+  }
 }
 </style>
