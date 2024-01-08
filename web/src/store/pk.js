@@ -14,6 +14,7 @@ export default{
     b_sy: 0,
     gameObject: null,
     loser: "none", // none、all、A、B
+    winner_direction: -1, // 五子棋连续五子的方向
 
   },
   getters: {
@@ -51,6 +52,9 @@ export default{
     },
     updateLoser(state, loser) {
       state.loser = loser;
+    },
+    updateWinnerDirection(state, winner_direction) { 
+      state.winner_direction = winner_direction;
     }
   },
   actions: {

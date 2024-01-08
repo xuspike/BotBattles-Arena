@@ -129,8 +129,8 @@ export default {
           }
           store.commit("updateLoser", data.loser);
         } else if (data.event === "gobang_result") {
-          // const game = store.state.pk.gameObject;
-          console.log("game over"); // 待完善
+          store.commit("updateLoser", data.loser);
+          store.commit("updateWinnerDirection", data.winner_direction);
         }
       };
 

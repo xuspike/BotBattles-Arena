@@ -8,6 +8,9 @@ export class Player extends AcGameObject {
         this.id = info.id;
         this.color = info.color;
         this.chesses = [];
+
+        this.dx = [-1, -1, 0, 1, 1, 1, 0, -1];
+        this.dy = [0, 1, 1, 1, 0, -1, -1, -1];
     }
     
     start() {
@@ -56,10 +59,36 @@ export class Player extends AcGameObject {
             if(i == this.chesses.length - 1 && chess.is_last) {
                 //将当前所下棋子标识
                 this.gamemap.ctx.beginPath();
-                this.gamemap.ctx.arc(chess.r * this.gamemap.L, chess.c * this.gamemap.L, chess.current_L * 0.3, 0, Math.PI * 2);
-                this.gamemap.ctx.lineWidth = chess.current_L * 0.1;
-                this.gamemap.ctx.strokeStyle = '#999999';
+                this.gamemap.ctx.arc(chess.r * this.gamemap.L, chess.c * this.gamemap.L, chess.current_L * 0.15, 0, Math.PI * 2);
+                this.gamemap.ctx.fillStyle = "red";
+                this.gamemap.ctx.fill();
+                this.gamemap.ctx.closePath();
+                // this.gamemap.ctx.arc(chess.r * this.gamemap.L, chess.c * this.gamemap.L, chess.current_L * 0.3, 0, Math.PI * 2);
+                // this.gamemap.ctx.lineWidth = chess.current_L * 0.1;
+                // this.gamemap.ctx.strokeStyle = '#999999';
+                // this.gamemap.ctx.stroke();
+            }
+        }
+
+        const winner_direction = this.gamemap.store.state.pk.winner_direction;
+
+        // 如果游戏结束，将连续的五子标识
+        if(this.id == 0 && this.gamemap.store.state.pk.loser === 'B') {
+            const chess = this.chesses[this.chesses.length - 1];
+            let x = chess.r - this.dx[winner_direction], y = chess.c - this.dy[winner_direction];
+            for(let i = 0; i < 5; i ++) {
+                x += this.dx[winner_direction], y += this.dy[winner_direction];
+                this.gamemap.ctx.beginPath();
+                this.gamemap.ctx.arc(x * this.gamemap.L, y * this.gamemap.L, chess.current_L * 0.47, 0, Math.PI * 2);
+                this.gamemap.ctx.lineWidth = chess.current_L * 0.05;
+                this.gamemap.ctx.strokeStyle = 'red';
                 this.gamemap.ctx.stroke();
+                // this.gamemap.ctx.beginPath();
+                // this.gamemap.ctx.arc(x * this.gamemap.L, y * this.gamemap.L, chess.current_L * 0.47, 0, Math.PI * 2);
+                // let style = this.gamemap.ctx.createRadialGradient(x * this.gamemap.L, y * this.gamemap.L, 0 * this.gamemap.L, x * this.gamemap.L, y * this.gamemap.L, this.gamemap.L * 0.5);
+                // style.addColorStop(0, 'red');
+                // this.gamemap.ctx.fillStyle = style;
+                // this.gamemap.ctx.fill();
             }
         }
     }

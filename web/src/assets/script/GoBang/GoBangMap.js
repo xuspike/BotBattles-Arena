@@ -31,6 +31,8 @@ export class GoBangMap extends AcGameObject {
             },
         ];
 
+        this.mouse_x = null;
+        this.mouse_y = null;
        
         this.map = new Array();
         this.PlayerA = new Player({id: 0, color: "black"}, this);
@@ -80,7 +82,23 @@ export class GoBangMap extends AcGameObject {
                     }))
                 }
             }
-            
+        });
+
+        this.ctx.canvas.addEventListener('mousemove', e => {
+            const rect = this.ctx.canvas.getBoundingClientRect();
+            let x = (e.clientX - rect.left) / this.L, y = (e.clientY - rect.top) / this.L;
+            let int_x = parseInt(x), int_y = parseInt(y);
+
+            if(x - int_x <= 0.5) x = int_x;
+            else x = int_x + 1;
+
+            if(y - int_y <= 0.5) y = int_y;
+            else y = int_y + 1;
+
+            if(x >= 1 && x <= 16 && y >= 1 && y <= 16) {
+                this.mouse_x = x;
+                this.mouse_y = y;
+            }
         });
     }
 
@@ -112,5 +130,8 @@ export class GoBangMap extends AcGameObject {
             this.ctx.arc(this.points[i].x * this.L, this.points[i].y * this.L, 0.1 * this.L, 0, Math.PI * 2);
             this.ctx.fill();
         }
+        this.ctx.fillStyle = "white";
+        this.ctx.beginPath();
+        this.ctx.strokeRect((this.mouse_x - 0.5) * this.L, (this.mouse_y - 0.5) * this.L, this.L, this.L);
     }
 }

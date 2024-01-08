@@ -27,7 +27,12 @@ public class GobangGame extends Thread{
     private String status = "playing"; // playing -> finished
 
     private Integer operator = 0; // 0表示当前由玩家A操作，1表示当前由玩家B操作
-    private String loser = ""; // all：平局，A： A：A输，B：B输
+    private String loser = "all"; // all：平局，A： A：A输，B：B输
+
+    private Integer winner_direction = -1;
+
+    // 八个方向
+    private final static int[] dx = {-1, -1, 0, 1, 1, 1, 0, -1}, dy = {0, 1, 1, 1, 0, -1, -1, -1};
 
     private final static String addBotUrl = "http://127.0.0.1:3002/bot/add/";
 
@@ -166,9 +171,35 @@ public class GobangGame extends Thread{
         return false;
     }
 
+    //判断当前方向是否有五子, color = 0表示黑子
+    private boolean is_five(int sx, int sy, int color,int direction) {
+        int x = sx, y = sy;
+        for(int i = 0; i < 4; i ++) {
+            x += dx[direction];
+            y += dy[direction];
+            if(x < 1 || x > 16 || y < 1 || y > 16 || g[x][y] != color)
+                return false;
+        }
+        return true;
+    }
+
     private void judge_result() { // 判断游戏输赢
         if(operator == 1) { // operator改变，此时operator = 1时，玩家A落子
             int x = nextStepA / 16 + 1, y = nextStepA % 16;
+            for(int i = 0; i < 8; i ++)
+                if(is_five(x, y, 0, i)) {
+                    loser = "B";
+                    status = "finished";
+                    winner_direction = i;
+                }
+        } else {
+            int x = nextStepB / 16 + 1, y = nextStepB % 16;
+            for(int i = 0; i < 8; i ++)
+                if(is_five(x, y, 1, i)) {
+                    loser = "A";
+                    status = "finished";
+                    winner_direction = i;
+                }
         }
     }
 
@@ -234,8 +265,9 @@ public class GobangGame extends Thread{
 
     private void sendResult() { // 向两个client广播结果
         JSONObject resp = new JSONObject();
-        resp.put("event", "result");
+        resp.put("event", "gobang_result");
         resp.put("loser", loser);
+        resp.put("winner_direction", winner_direction);
         saveToDatabase();
         sendAllMessage(resp.toJSONString());
     }
@@ -248,6 +280,7 @@ public class GobangGame extends Thread{
                 if(status.equals("playing")) {
                     sendDrop();
                 } else {
+                    sendDrop();
                     sendResult();
                     break;
                 }
@@ -255,11 +288,9 @@ public class GobangGame extends Thread{
                 status = "finished";
                 lock.lock();
                 try {
-                    if (nextStepA == null && nextStepB == null) {
-                        loser = "all";
-                    } else if (nextStepA == null) {
+                    if (operator == 0 && nextStepA == null) {
                         loser = "A";
-                    } else if (nextStepB == null) {
+                    } else if (operator == 1 && nextStepB == null) {
                         loser = "B";
                     }
                 } finally { // finally保证报异常也会解锁，避免死锁
