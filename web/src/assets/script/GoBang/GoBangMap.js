@@ -63,15 +63,24 @@ export class GoBangMap extends AcGameObject {
             if(y - int_y <= 0.5) y = int_y;
             else y = int_y + 1;
 
+
+            // 前端也可以先判断是否合法
             if(x >= 1 && x <= 16 && y >= 1 && y <= 16 && !this.map[x][y]) {
-                // 先默认画黑色
-                this.PlayerA.push_chess(x, y, "black");
+                let step = (x - 1) * 16 + y;
                 this.map[x][y] = 1;
+                if(this.store.state.user.id == this.store.state.pk.a_id) {
+                    this.store.state.pk.socket.send(JSON.stringify({
+                        event: "drop",
+                        step: step,
+                    }))
+                } else if(this.store.state.user.id == this.store.state.pk.b_id) {
+                    this.store.state.pk.socket.send(JSON.stringify({
+                        event: "drop",
+                        step: step,
+                    }))
+                }
             }
             
-
-            console.log(x);
-            console.log(y);
         });
     }
 
@@ -89,7 +98,7 @@ export class GoBangMap extends AcGameObject {
     render() {
         for(let r = 0; r < this.rows; r++) {
             for(let c = 0; c < this.cols; c++) {
-                this.ctx.fillStyle = "rgb(153,102,51)";
+                this.ctx.fillStyle = "rgb(164,140,90)";
                 this.ctx.fillRect(c * this.L, r * this.L, this.L, this.L);
                 if(r >= 1 && c >= 1 && r < this.rows - 1 && c < this.cols - 1) {
                     this.ctx.strokeStyle = "black";

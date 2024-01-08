@@ -16,7 +16,7 @@ import java.util.Random;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class GobangGame extends Thread{
-    private final int [][]g;
+    private final int [][]g; // -1表示未下，0表示玩家A黑子，1表示玩家B白子
     private final Player PlayerA, PlayerB;
     // 两名玩家的下一步操作
     private Integer nextStepA = null;
@@ -34,6 +34,10 @@ public class GobangGame extends Thread{
     public GobangGame(Integer idA, Bot botA, Integer idB, Bot botB) {
         this.g = new int[17][17];
 
+        for(int i = 0; i < 17; i ++)
+            for(int j = 0; j < 17; j ++)
+                g[i][j] = -1;
+
         Integer botIdA = -1, botIdB = -1;
         String botCodeA = "", botCodeB = "";
         if(botA != null) {
@@ -46,6 +50,10 @@ public class GobangGame extends Thread{
         }
         PlayerA = new Player(idA, botIdA, botCodeA, new ArrayList<>());
         PlayerB = new Player(idB, botIdB, botCodeB, new ArrayList<>());
+    }
+
+    public Integer getOperator() {
+        return operator;
     }
 
     public Player getPlayerA() {
@@ -81,7 +89,6 @@ public class GobangGame extends Thread{
     }
 
     private String getInput(Player player) { // 将当前的局面信息编码成字符串
-        // 地图#me.sx#me.sy#me.steps#you.sx#you.sy#you.steps
         Player me, you;
         if(PlayerA.getId().equals(player.getId())) {
             me = PlayerA;
@@ -104,8 +111,7 @@ public class GobangGame extends Thread{
     }
 
     private boolean nextStep() { // 等待当前操作方的下一步操作
-        // 由于前端棋子变大需要约为334ms，后端至少要等334ms让前端渲染完
-        try {
+        try { // 由于前端棋子变大需要约为334ms，后端至少要等334ms让前端渲染完
             Thread.sleep(334);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -120,16 +126,18 @@ public class GobangGame extends Thread{
                 lock.lock();
                 try {
                     if(operator == 0 && nextStepA != null) {
-                        if(!judge(nextStepA)) {
+                        if(!judge(nextStepA, "playerA")) {
                             nextStepA = null;
+                            continue;
                         }
                         PlayerA.getSteps().add(nextStepA);
                         operator = 1;
                         return true;
                     }
                     if(operator == 1 && nextStepB != null) {
-                        if(!judge(nextStepB)) {
+                        if(!judge(nextStepB,"playerB")) {
                             nextStepB = null;
+                            continue;
                         }
                         PlayerB.getSteps().add(nextStepB);
                         operator = 0;
@@ -146,18 +154,22 @@ public class GobangGame extends Thread{
         return false;
     }
 
-
-
-    private boolean judge(Integer next) { // 判断玩家下一步棋子是否合法
+    private boolean judge(Integer next, String player) { // 判断玩家下一步棋子是否合法
         int x = next / 16 + 1;
         int y = next % 16;
 
-        if(g[x][y] == 0) return true;
+        if(g[x][y] == -1){
+            if("playerA".equals(player)) g[x][y] = 0;
+            else if("playerB".equals(player)) g[x][y] = 1;
+            return true;
+        }
         return false;
     }
 
     private void judge_result() { // 判断游戏输赢
-
+        if(operator == 1) { // operator改变，此时operator = 1时，玩家A落子
+            int x = nextStepA / 16 + 1, y = nextStepA % 16;
+        }
     }
 
     public void sendAllMessage(String message) {

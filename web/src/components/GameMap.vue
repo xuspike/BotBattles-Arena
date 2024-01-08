@@ -20,7 +20,6 @@ export default {
 
     // 组件加载完后运行
     onMounted(() => {
-      console.log(store.state.pk.mode);
       if (store.state.pk.mode === "snake") {
         store.commit(
           "updateGameObject",

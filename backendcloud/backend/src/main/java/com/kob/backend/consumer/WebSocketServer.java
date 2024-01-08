@@ -194,6 +194,16 @@ public class WebSocketServer {
         }
     }
 
+    public void drop(int step) {
+        if(GobangGame.getPlayerA().getId().equals(user.getId()) && GobangGame.getOperator() == 0) {
+            if(GobangGame.getPlayerA().getBotId().equals(-1)) //亲自出马
+                GobangGame.setNextStepA(step);
+        } else if(GobangGame.getPlayerB().getId().equals(user.getId()) && GobangGame.getOperator() == 1) {
+            if(GobangGame.getPlayerB().getBotId().equals(-1)) // 亲自出马
+                GobangGame.setNextStepB(step);
+        }
+    }
+
     @OnMessage
     public void onMessage(String message, Session session) { // 一般当做路由，判断把任务交给谁处理
         // 从Client接收消息
@@ -207,6 +217,8 @@ public class WebSocketServer {
             stopMatching(mode);
         } else if("move".equals(event)) {
             move(data.getInteger("direction"));
+        } else if("drop".equals(event)) {
+            drop(data.getInteger("step"));
         }
     }
 

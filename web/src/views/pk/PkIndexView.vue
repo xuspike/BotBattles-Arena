@@ -93,6 +93,7 @@ export default {
           setTimeout(() => {
             store.commit("updateStatus", "playing");
           }, 200);
+          console.log(data.game);
           store.commit("updateGame", data.game);
         } else if (data.event === "move") {
           hide_toast();
@@ -100,7 +101,23 @@ export default {
           const [snake0, snake1] = game.snakes;
           snake0.set_direction(data.a_direction);
           snake1.set_direction(data.b_direction);
-        } else if (data.event === "result") {
+        } else if (data.event === "drop") {
+          const game = store.state.pk.gameObject;
+          const playerA = game.PlayerA;
+          const playerB = game.PlayerB;
+          if (data.player === "a") {
+            playerA.push_chess(data.next_step);
+            // 将上一步棋子状态改变(is_last = false)
+            if (playerB.chesses.length > 0) {
+              playerB.chesses[playerB.chesses.length - 1].is_last = false;
+            }
+          } else if (data.player === "b") {
+            playerB.push_chess(data.next_step);
+            if (playerA.chesses.length > 0) {
+              playerA.chesses[playerA.chesses.length - 1].is_last = false;
+            }
+          }
+        } else if (data.event === "snake_result") {
           const game = store.state.pk.gameObject;
           const [snake0, snake1] = game.snakes;
 
@@ -111,6 +128,9 @@ export default {
             snake1.status = "die";
           }
           store.commit("updateLoser", data.loser);
+        } else if (data.event === "gobang_result") {
+          // const game = store.state.pk.gameObject;
+          console.log("game over"); // 待完善
         }
       };
 

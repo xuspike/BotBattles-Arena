@@ -306,7 +306,7 @@ public class SnakeGame extends Thread{
 
     private void sendResult() { // 向两个client广播结果
         JSONObject resp = new JSONObject();
-        resp.put("event", "result");
+        resp.put("event", "snake_result");
         resp.put("loser", loser);
         saveToDatabase();
         sendAllMessage(resp.toJSONString());
