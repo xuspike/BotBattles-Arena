@@ -19,6 +19,7 @@ public class GobangRecord {
     private String aSteps;
     private String bSteps;
     private String loser;
+    private Integer winnerDirection;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
     private Date createtime;
 }

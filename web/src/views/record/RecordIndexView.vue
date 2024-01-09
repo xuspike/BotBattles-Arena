@@ -1,5 +1,11 @@
 <template>
   <ContentField>
+    <div>
+      <el-radio-group v-model="mode">
+        <el-radio-button @click="click_mode('贪吃蛇')" label="贪吃蛇" />
+        <el-radio-button @click="click_mode('五子棋')" label="五子棋" />
+      </el-radio-group>
+    </div>
     <table class="table rwd-table" style="text-align: center">
       <thead>
         <tr>
@@ -32,7 +38,7 @@
             <button
               type="button"
               class="custom-btn btn-1"
-              @click="open_record_content(record.record.id)"
+              @click="open_aid_record(record.record.id)"
             >
               查看录像
             </button>
@@ -65,7 +71,7 @@
 import ContentField from "../../components/ContentField.vue";
 import { useStore } from "vuex";
 import $ from "jquery";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 export default {
@@ -79,7 +85,13 @@ export default {
     let current_page = 1;
     let total_records = 0;
     let pages = ref([]);
-    let mode = "snake";
+    let mode = ref("贪吃蛇");
+
+    const click_mode = (aid_mode) => {
+      current_page = 1;
+      mode.value = aid_mode;
+      pull_page(current_page);
+    };
 
     const click_page = (page) => {
       if (page === -2) page = current_page - 1;
@@ -106,8 +118,11 @@ export default {
 
     const pull_page = (page) => {
       current_page = page;
+      let url = "http://127.0.0.1:3000/api/record/getlist/";
+      if (mode.value === "五子棋")
+        url = "http://127.0.0.1:3000/api/gobang_record/getlist/";
       $.ajax({
-        url: "http://127.0.0.1:3000/api/record/getlist/",
+        url: url,
         type: "get",
         data: {
           page,
@@ -140,13 +155,16 @@ export default {
       return g;
     };
 
-    pull_page(current_page);
+    const open_aid_record = (recordId) => {
+      if (mode.value === "贪吃蛇") open_SnakeRecord_content(recordId);
+      else if (mode.value === "五子棋") open_GobangRecord_content(recordId);
+    };
 
-    const open_record_content = (recordId) => {
+    const open_SnakeRecord_content = (recordId) => {
       for (const record of records.value) {
         if (record.record.id === recordId) {
           store.commit("updateIsRecord", true);
-          store.commit("updateMode", mode);
+          store.commit("updateMode", "snake");
           store.commit("updateGame", {
             map: stringTo2D(record.record.map),
             a_id: record.record.aid,
@@ -156,7 +174,6 @@ export default {
             b_sx: record.record.bsx,
             b_sy: record.record.bsy,
           });
-          console.log(record);
           store.commit("updateSteps", {
             a_steps: record.record.asteps,
             b_steps: record.record.bsteps,
@@ -173,11 +190,43 @@ export default {
       }
     };
 
+    const open_GobangRecord_content = (recordId) => {
+      for (const record of records.value) {
+        if (record.record.id === recordId) {
+          store.commit("updateIsRecord", true);
+          store.commit("updateMode", "gobang");
+          store.commit("updateGame", {
+            a_id: record.record.aid,
+            b_id: record.record.bid,
+          });
+          store.commit("updateSteps", {
+            a_steps: record.record.asteps,
+            b_steps: record.record.bsteps,
+          });
+          store.commit("updateRecordLoser", record.record.loser);
+          store.commit("updateWinnerDirection", record.record.winnerDirection);
+          router.push({
+            name: "record_content",
+            params: {
+              recordId,
+            },
+          });
+          break;
+        }
+      }
+    };
+
+    onMounted(() => {
+      pull_page(current_page);
+    });
+
     return {
       records,
       pages,
-      open_record_content,
+      mode,
+      open_aid_record,
       click_page,
+      click_mode,
     };
   },
 };

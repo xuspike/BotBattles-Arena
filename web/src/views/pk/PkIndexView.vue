@@ -7,7 +7,7 @@
     v-if="$store.state.pk.status === 'playing'"
     style="position: absolute; right: 0; width: 30vw"
   >
-    <div class="toast-header">
+    <div v-if="$store.state.pk.mode === 'snake'" class="toast-header">
       <img
         style="width: 2vw; border-radius: 50%"
         src="@/assets/images/1_d7f3b93efd-kob.jpg"
@@ -21,7 +21,21 @@
         aria-label="Close"
       ></button>
     </div>
-    <div class="toast-body">
+    <div v-else-if="$store.state.pk.mode === 'gobang'" class="toast-header">
+      <img
+        style="width: 2vw; border-radius: 50%"
+        src="@/assets/images/u=578129405,813708542&fm=253&fmt=auto&app=138&f=JPEG.webp"
+        alt=""
+      />
+      <strong class="me-auto" style="margin-left: 5px">游戏开始</strong>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="toast"
+        aria-label="Close"
+      ></button>
+    </div>
+    <div v-if="$store.state.pk.mode === 'snake'" class="toast-body">
       你出生在
       <span
         style="color: blue"
@@ -33,6 +47,20 @@
         v-else-if="parseInt($store.state.user.id) === $store.state.pk.b_id"
       >
         红方
+      </span>
+    </div>
+    <div v-else-if="$store.state.pk.mode === 'gobang'" class="toast-body">
+      你执手
+      <span
+        style="color: black"
+        v-if="parseInt($store.state.user.id) === $store.state.pk.a_id"
+        >黑棋
+      </span>
+      <span
+        style="color: white"
+        v-else-if="parseInt($store.state.user.id) === $store.state.pk.b_id"
+      >
+        白棋
       </span>
     </div>
   </div>

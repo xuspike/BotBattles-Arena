@@ -9,8 +9,10 @@ export class Player extends AcGameObject {
         this.color = info.color;
         this.chesses = [];
 
-        this.dx = [-1, -1, 0, 1, 1, 1, 0, -1];
-        this.dy = [0, 1, 1, 1, 0, -1, -1, -1];
+        this.last_L = this.gamemap.L;
+
+        this.dx = [0, 1, 1, 1, 0, -1, -1, -1];
+        this.dy = [-1, -1, 0, 1, 1, 1, 0, -1];
     }
     
     start() {
@@ -21,8 +23,10 @@ export class Player extends AcGameObject {
     }
 
     push_chess(step) {
-        let x = parseInt(step / 16 + 1);
-        let y = parseInt(step % 16);
+        let y = parseInt(step / 16 + 1);
+        let x = parseInt(step % 16);
+        if(this.id == 0) this.gamemap.map[x][y] = 0;
+        else this.gamemap.map[x][y] = 1;
         this.chesses.push(new Chess(x, y, this.color));
     }
 
@@ -71,25 +75,169 @@ export class Player extends AcGameObject {
         }
 
         const winner_direction = this.gamemap.store.state.pk.winner_direction;
+        console.log(winner_direction);
+        if(!this.gamemap.store.state.record.is_record) {
+            let count = 5;
+            // 如果游戏结束，将连续的五子标识
+            if(this.id == 0 && this.gamemap.store.state.pk.loser === 'B' && winner_direction != -1) {
+                const chess = this.chesses[this.chesses.length - 1];
+                let x = chess.r, y = chess.c;
+                let i = 0;
+                while(i < 5 && count > 0) {
+                    if(this.last_L <= this.gamemap.L * 1.25) this.last_L += this.gamemap.L * 0.02;
+                    if(this.gamemap.map[x][y] != 0) break;
+                    this.gamemap.ctx.beginPath();
+                    this.gamemap.ctx.arc(x * this.gamemap.L, y * this.gamemap.L, this.last_L * 0.47, 0, Math.PI * 2);
+                    let tx = x - 0.2;
+                    let ty = y - 0.2;
+                    
+                    let style = this.gamemap.ctx.createRadialGradient(tx * this.gamemap.L, ty * this.gamemap.L, 0 * this.gamemap.L, tx * this.gamemap.L, ty * this.gamemap.L, this.last_L * 0.5);
+                    style.addColorStop(0, "#ccc");
+                    style.addColorStop(1, "#000");
+                    this.gamemap.ctx.fillStyle = style;
+                    this.gamemap.ctx.fill();
+                    i ++;
+                    count --;
+                    x += this.dx[winner_direction], y += this.dy[winner_direction];
+                }
 
-        // 如果游戏结束，将连续的五子标识
-        if(this.id == 0 && this.gamemap.store.state.pk.loser === 'B') {
-            const chess = this.chesses[this.chesses.length - 1];
-            let x = chess.r - this.dx[winner_direction], y = chess.c - this.dy[winner_direction];
-            for(let i = 0; i < 5; i ++) {
-                x += this.dx[winner_direction], y += this.dy[winner_direction];
-                this.gamemap.ctx.beginPath();
-                this.gamemap.ctx.arc(x * this.gamemap.L, y * this.gamemap.L, chess.current_L * 0.47, 0, Math.PI * 2);
-                this.gamemap.ctx.lineWidth = chess.current_L * 0.05;
-                this.gamemap.ctx.strokeStyle = 'red';
-                this.gamemap.ctx.stroke();
-                // this.gamemap.ctx.beginPath();
-                // this.gamemap.ctx.arc(x * this.gamemap.L, y * this.gamemap.L, chess.current_L * 0.47, 0, Math.PI * 2);
-                // let style = this.gamemap.ctx.createRadialGradient(x * this.gamemap.L, y * this.gamemap.L, 0 * this.gamemap.L, x * this.gamemap.L, y * this.gamemap.L, this.gamemap.L * 0.5);
-                // style.addColorStop(0, 'red');
-                // this.gamemap.ctx.fillStyle = style;
-                // this.gamemap.ctx.fill();
+                i = 0;
+                x = chess.r, y = chess.c;
+
+                while(i < 5 && count > 0) {
+                    x += this.dx[winner_direction + 4], y += this.dy[winner_direction + 4];
+                    if(this.gamemap.map[x][y] != 0) break;
+                    i ++;
+                    count --;
+                    if(this.last_L <= this.gamemap.L * 1.25) this.last_L += this.gamemap.L * 0.02;
+                    this.gamemap.ctx.beginPath();
+                    this.gamemap.ctx.arc(x * this.gamemap.L, y * this.gamemap.L, this.last_L * 0.47, 0, Math.PI * 2);
+                    let tx = x - 0.2;
+                    let ty = y - 0.2;
+                    
+                    let style = this.gamemap.ctx.createRadialGradient(tx * this.gamemap.L, ty * this.gamemap.L, 0 * this.gamemap.L, tx * this.gamemap.L, ty * this.gamemap.L, this.last_L * 0.5);
+                    style.addColorStop(0, "#ccc");
+                    style.addColorStop(1, "#000");
+                    this.gamemap.ctx.fillStyle = style;
+                    this.gamemap.ctx.fill();
+                }
+                // for(let i = 0; i < 5; i ++) {
+                    // this.gamemap.ctx.beginPath();
+                    // this.gamemap.ctx.arc(x * this.gamemap.L, y * this.gamemap.L, chess.current_L * 0.47, 0, Math.PI * 2);
+                    // this.gamemap.ctx.lineWidth = chess.current_L * 0.05;
+                    // this.gamemap.ctx.strokeStyle = 'red';
+                    // this.gamemap.ctx.stroke();
+                // }
+            } else if(this.id == 1 && this.gamemap.store.state.pk.loser === 'A' && winner_direction != -1) {
+                const chess = this.chesses[this.chesses.length - 1];
+                let x = chess.r, y = chess.c;
+
+                let i = 0;
+                while(i < 5 && count > 0) {
+                    if(this.gamemap.map[x][y] != 1) break;
+                    if(this.last_L <= this.gamemap.L * 1.25) this.last_L += this.gamemap.L * 0.02;
+                    this.gamemap.ctx.beginPath();
+                    this.gamemap.ctx.arc(x * this.gamemap.L, y * this.gamemap.L, this.last_L * 0.47, 0, Math.PI * 2);
+                    let tx = x - 0.2;
+                    let ty = y - 0.2;
+                    
+                    let style = this.gamemap.ctx.createRadialGradient(tx * this.gamemap.L, ty * this.gamemap.L, 0 * this.gamemap.L, tx * this.gamemap.L, ty * this.gamemap.L, this.last_L * 0.5);
+                    style.addColorStop(0, "#666");
+                    style.addColorStop(1, "#fff");
+                    this.gamemap.ctx.fillStyle = style;
+                    this.gamemap.ctx.fill();
+                    i ++;
+                    count --;
+                    x += this.dx[winner_direction], y += this.dy[winner_direction];
+                }
+
+                i = 0;
+                x = chess.r, y = chess.c;
+
+                console.log("count = ", count);
+
+                while(i < 5 && count > 0) {
+                    x += this.dx[winner_direction + 4], y += this.dy[winner_direction + 4];
+                    if(this.gamemap.map[x][y] != 1) break;
+                    if(this.last_L <= this.gamemap.L * 1.25) this.last_L += this.gamemap.L * 0.02;
+                    this.gamemap.ctx.beginPath();
+                    this.gamemap.ctx.arc(x * this.gamemap.L, y * this.gamemap.L, this.last_L * 0.47, 0, Math.PI * 2);
+                    let tx = x - 0.2;
+                    let ty = y - 0.2;
+                    
+                    let style = this.gamemap.ctx.createRadialGradient(tx * this.gamemap.L, ty * this.gamemap.L, 0 * this.gamemap.L, tx * this.gamemap.L, ty * this.gamemap.L, this.last_L * 0.5);
+                    style.addColorStop(0, "#666");
+                    style.addColorStop(1, "#fff");
+                    this.gamemap.ctx.fillStyle = style;
+                    this.gamemap.ctx.fill();
+                    i ++;
+                    count --;
+                }
+
+                // for(let i = 0; i < 5; i ++) {
+                //     x += this.dx[winner_direction], y += this.dy[winner_direction];
+                //     if(this.last_L <= this.gamemap.L * 1.2)
+                //     this.last_L += this.gamemap.L * 0.02;
+                //     this.gamemap.ctx.beginPath();
+                //     this.gamemap.ctx.arc(x * this.gamemap.L, y * this.gamemap.L, this.last_L * 0.47, 0, Math.PI * 2);
+                //     let tx = x + 0.2;
+                //     let ty = y + 0.2;
+                //     let style = this.gamemap.ctx.createRadialGradient(tx * this.gamemap.L, ty * this.gamemap.L, 0 * this.gamemap.L, tx * this.gamemap.L, ty * this.gamemap.L, this.last_L * 0.5);
+                //     style.addColorStop(0, "#666");
+                //     style.addColorStop(1, "#fff");
+                //     this.gamemap.ctx.fillStyle = style;
+                //     this.gamemap.ctx.fill();
+                // }
             }
         }
+        
+        // } else {
+        //     console.log(this.gamemap.store.state.record);
+        //     const winner_direction = this.gamemap.store.state.record.winner_direction;
+        //     console.log(winner_direction);
+        //     if(this.id == 0 && this.gamemap.store.state.record.record_loser === 'B' && winner_direction != -1) {
+        //         const chess = this.chesses[this.chesses.length - 1];
+        //         let x = chess.r - this.dx[winner_direction], y = chess.c - this.dy[winner_direction];
+        //         for(let i = 0; i < 5; i ++) {
+        //             x += this.dx[winner_direction], y += this.dy[winner_direction];
+        //             if(this.last_L <= this.gamemap.L * 1.25) this.last_L += this.gamemap.L * 0.02;
+        //             this.gamemap.ctx.beginPath();
+        //             this.gamemap.ctx.arc(x * this.gamemap.L, y * this.gamemap.L, this.last_L * 0.47, 0, Math.PI * 2);
+        //             let tx = x - 0.2;
+        //             let ty = y - 0.2;
+                    
+        //             let style = this.gamemap.ctx.createRadialGradient(tx * this.gamemap.L, ty * this.gamemap.L, 0 * this.gamemap.L, tx * this.gamemap.L, ty * this.gamemap.L, this.last_L * 0.5);
+        //             style.addColorStop(0, "#ccc");
+        //             style.addColorStop(1, "#000");
+        //             this.gamemap.ctx.fillStyle = style;
+        //             this.gamemap.ctx.fill();
+        //             // this.gamemap.ctx.beginPath();
+        //             // this.gamemap.ctx.arc(x * this.gamemap.L, y * this.gamemap.L, chess.current_L * 0.47, 0, Math.PI * 2);
+        //             // this.gamemap.ctx.lineWidth = chess.current_L * 0.05;
+        //             // this.gamemap.ctx.strokeStyle = 'red';
+        //             // this.gamemap.ctx.stroke();
+        //         }
+        //     } else if(this.id == 1 && this.gamemap.store.state.record.record_loser === 'A' && winner_direction != -1) {
+        //         const chess = this.chesses[this.chesses.length - 1];
+        //         console.log(this.chesses.length - 1);
+        //         console.log(chess);
+        //         let x = chess.r - this.dx[winner_direction], y = chess.c - this.dy[winner_direction];
+        //         for(let i = 0; i < 5; i ++) {
+        //             x += this.dx[winner_direction], y += this.dy[winner_direction];
+        //             if(this.last_L <= this.gamemap.L * 1.2)
+        //             this.last_L += this.gamemap.L * 0.02;
+        //             this.gamemap.ctx.beginPath();
+        //             this.gamemap.ctx.arc(x * this.gamemap.L, y * this.gamemap.L, this.last_L * 0.47, 0, Math.PI * 2);
+        //             let tx = x + 0.2;
+        //             let ty = y + 0.2;
+        //             let style = this.gamemap.ctx.createRadialGradient(tx * this.gamemap.L, ty * this.gamemap.L, 0 * this.gamemap.L, tx * this.gamemap.L, ty * this.gamemap.L, this.last_L * 0.5);
+        //             style.addColorStop(0, "#666");
+        //             style.addColorStop(1, "#fff");
+        //             this.gamemap.ctx.fillStyle = style;
+        //             this.gamemap.ctx.fill();
+        //     }
+        // }
+        // }
+        
     }
 }

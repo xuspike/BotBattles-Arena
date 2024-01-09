@@ -32,7 +32,7 @@ public class GobangGame extends Thread{
     private Integer winner_direction = -1;
 
     // 八个方向
-    private final static int[] dx = {-1, -1, 0, 1, 1, 1, 0, -1}, dy = {0, 1, 1, 1, 0, -1, -1, -1};
+    private final static int[] dx = {0, 1, 1, 1, 0, -1, -1, -1}, dy = {-1, -1, 0, 1, 1, 1, 0, -1};
 
     private final static String addBotUrl = "http://127.0.0.1:3002/bot/add/";
 
@@ -160,8 +160,8 @@ public class GobangGame extends Thread{
     }
 
     private boolean judge(Integer next, String player) { // 判断玩家下一步棋子是否合法
-        int x = next / 16 + 1;
-        int y = next % 16;
+        int y = next / 16 + 1;
+        int x = next % 16;
 
         if(g[x][y] == -1){
             if("playerA".equals(player)) g[x][y] = 0;
@@ -174,27 +174,43 @@ public class GobangGame extends Thread{
     //判断当前方向是否有五子, color = 0表示黑子
     private boolean is_five(int sx, int sy, int color,int direction) {
         int x = sx, y = sy;
+        int count = 1;
         for(int i = 0; i < 4; i ++) {
             x += dx[direction];
             y += dy[direction];
             if(x < 1 || x > 16 || y < 1 || y > 16 || g[x][y] != color)
-                return false;
+                break;
+            count ++;
         }
-        return true;
+        x = sx; y = sy;
+        for(int i = 0; i < 4; i ++) {
+            x += dx[direction + 4];
+            y += dy[direction + 4];
+            if(x < 1 || x > 16 || y < 1 || y > 16 || g[x][y] != color)
+                break;
+            count ++;
+        }
+        System.out.println("direction: = ");
+        System.out.println(direction);
+        System.out.println("count = ");
+        System.out.println(count);
+
+        if(count >= 5) return true;
+        return false;
     }
 
     private void judge_result() { // 判断游戏输赢
         if(operator == 1) { // operator改变，此时operator = 1时，玩家A落子
-            int x = nextStepA / 16 + 1, y = nextStepA % 16;
-            for(int i = 0; i < 8; i ++)
+            int y = nextStepA / 16 + 1, x = nextStepA % 16;
+            for(int i = 0; i < 4; i ++)
                 if(is_five(x, y, 0, i)) {
                     loser = "B";
                     status = "finished";
                     winner_direction = i;
                 }
         } else {
-            int x = nextStepB / 16 + 1, y = nextStepB % 16;
-            for(int i = 0; i < 8; i ++)
+            int y = nextStepB / 16 + 1, x = nextStepB % 16;
+            for(int i = 0; i < 4; i ++)
                 if(is_five(x, y, 1, i)) {
                     loser = "A";
                     status = "finished";
@@ -258,6 +274,7 @@ public class GobangGame extends Thread{
                 PlayerA.getStepsString(),
                 PlayerB.getStepsString(),
                 loser,
+                winner_direction,
                 new Date()
         );
         WebSocketServer.gobangRecordMapper.insert(record);

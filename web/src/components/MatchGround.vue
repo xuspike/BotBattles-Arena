@@ -14,10 +14,7 @@
       </div>
 
       <div class="col-4">
-        <div
-          class="user-select-bot"
-          style="margin-top: 40px; margin-right: 2vw"
-        >
+        <div class="user-select-bot" style="margin-top: 35%; margin-right: 2vw">
           <select
             v-model="select_bot"
             name="form-select"

@@ -4,6 +4,7 @@ export default{
     a_steps: "",
     b_steps: "",
     record_loser: "",
+    winner_direction: -1,
   },
   getters: {
   },
@@ -17,6 +18,9 @@ export default{
     },
     updateRecordLoser(state, loser) {
       state.record_loser = loser;
+    },
+    updateWinnerDirection(state, diretion) {
+      state.winner_direction = diretion;
     }
   },
   actions: {
