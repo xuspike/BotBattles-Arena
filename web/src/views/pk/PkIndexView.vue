@@ -129,6 +129,10 @@ export default {
           const [snake0, snake1] = game.snakes;
           snake0.set_direction(data.a_direction);
           snake1.set_direction(data.b_direction);
+          const move_music = new Audio(
+            require("@/assets/sound/蛇移动声音.wav")
+          );
+          move_music.play();
         } else if (data.event === "drop") {
           const game = store.state.pk.gameObject;
           const playerA = game.PlayerA;

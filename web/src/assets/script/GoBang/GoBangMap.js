@@ -72,20 +72,30 @@ export class GoBangMap extends AcGameObject {
                 // 黑子下
                 if(i <= j && i < a_steps.length) {
                     let a_step = parseInt(a_steps[i]);
-                    y = parseInt(a_step / 16 + 1), x = a_step % 16;
+                    let flag = (a_step % 16 == 0) ? 0 : 1;
+                    y = parseInt(a_step / 16 + flag), x = a_step % 16 + (1 - flag) * 16;
                     // console.log("a_x = ", x);
                     // console.log("a_y = ", y);
                     this.PlayerA.chesses.push(new Chess(x, y, "black"));
                     if(j >= 1) this.PlayerB.chesses[j - 1].is_last = false;
                     i ++;
+                    const move_music = new Audio(
+                        require("@/assets/sound/在棋盘上落子的声音.mp3")
+                      );
+                    move_music.play();
                 } else if(i > j && j < b_steps.length) { // 白子下
                     let b_step = parseInt(b_steps[j]);
-                    y = parseInt(b_step / 16 + 1), x = b_step % 16;
+                    let flag = (b_step % 16 == 0) ? 0 : 1;
+                    y = parseInt(b_step / 16 + flag), x = b_step % 16 + (1 - flag) * 16;
                     // console.log("b_x = ", x);
                     // console.log("b_y = ", y);
                     this.PlayerB.chesses.push(new Chess(x, y, "white"));
                     this.PlayerA.chesses[i - 1].is_last = false;
                     j ++;
+                    const move_music = new Audio(
+                        require("@/assets/sound/在棋盘上落子的声音.mp3")
+                      );
+                    move_music.play();
                 }
                 if(i == a_steps.length && j == b_steps.length) 
                     clearInterval(interval_id);
@@ -134,7 +144,6 @@ export class GoBangMap extends AcGameObject {
                     if(y - int_y <= 0.5) y = int_y;
                     else y = int_y + 1;
     
-                    console.log(x, y);
                     if(x >= 1 && x <= 16 && y >= 1 && y <= 16) {
                         this.mouse_x = x;
                         this.mouse_y = y;

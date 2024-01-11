@@ -42,6 +42,7 @@ export class SnakeMap extends AcGameObject {
     }
 
     add_listening_events() {
+        const move_music = new Audio(require("../../sound/蛇移动声音.wav"));
         if(this.store.state.record.is_record) { // 录像
             let k = 0;
             const a_steps = this.store.state.record.a_steps;
@@ -60,6 +61,9 @@ export class SnakeMap extends AcGameObject {
                 } else {
                     snake0.set_direction(parseInt(a_steps[k]));
                     snake1.set_direction(parseInt(b_steps[k]));
+                    move_music.currentTime = 0;
+                    move_music.play();
+                    console.log("audio_playing");
                 }
                 k ++;
             }, 300)

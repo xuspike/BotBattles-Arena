@@ -11,4 +11,5 @@ public class Bot {
     Integer userId;
     String botCode;
     String input;
+    String mode; // 游戏模式
 }

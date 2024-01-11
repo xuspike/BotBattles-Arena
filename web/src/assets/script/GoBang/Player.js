@@ -23,8 +23,9 @@ export class Player extends AcGameObject {
     }
 
     push_chess(step) {
-        let y = parseInt(step / 16 + 1);
-        let x = parseInt(step % 16);
+        let flag = (step % 16 == 0) ? 0 : 1;
+        let y = parseInt(step / 16 + flag);
+        let x = parseInt(step % 16 + (1 - flag) * 16);
         if(this.id == 0) this.gamemap.map[x][y] = 0;
         else this.gamemap.map[x][y] = 1;
         this.chesses.push(new Chess(x, y, this.color));
@@ -75,7 +76,6 @@ export class Player extends AcGameObject {
         }
 
         const winner_direction = this.gamemap.store.state.pk.winner_direction;
-        console.log(winner_direction);
         if(!this.gamemap.store.state.record.is_record) {
             let count = 5;
             // 如果游戏结束，将连续的五子标识
@@ -153,8 +153,6 @@ export class Player extends AcGameObject {
 
                 i = 0;
                 x = chess.r, y = chess.c;
-
-                console.log("count = ", count);
 
                 while(i < 5 && count > 0) {
                     x += this.dx[winner_direction + 4], y += this.dy[winner_direction + 4];

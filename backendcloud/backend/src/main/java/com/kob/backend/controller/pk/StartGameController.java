@@ -21,7 +21,6 @@ public class StartGameController {
         Integer bId = Integer.parseInt(Objects.requireNonNull(data.getFirst("b_id")));
         Integer bBotId = Integer.parseInt(Objects.requireNonNull(data.getFirst("b_bot_id")));
         String mode = data.getFirst("mode");
-        System.out.println("controller" + mode);
         return startGameService.startGame(aId, aBotId, bId, bBotId, mode);
     }
 }

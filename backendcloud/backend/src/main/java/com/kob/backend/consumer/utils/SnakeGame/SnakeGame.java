@@ -162,6 +162,7 @@ public class SnakeGame extends Thread{
         data.add("user_id", player.getId().toString());
         data.add("bot_code", player.getBotCode().toString());
         data.add("input", getInput(player));
+        data.add("mode", "snake");
 
         WebSocketServer.restTemplate.postForObject(addBotUrl, data, String.class);
     }

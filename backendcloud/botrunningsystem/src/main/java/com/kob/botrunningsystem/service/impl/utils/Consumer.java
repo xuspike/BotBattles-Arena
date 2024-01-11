@@ -63,14 +63,22 @@ public class Consumer extends Thread{
             throw new RuntimeException(e);
         }
 
-        Integer direction = botInterface.get(); // Supplier含有get函数，返回编译结果
+        Integer res = botInterface.get(); // Supplier含有get函数，返回编译结果
 
-        System.out.println("move-direction: " + bot.getUserId() + " " + direction);
+        System.out.println("res: " + bot.getUserId() + " " + res);
+        System.out.print("mode = ");
+        System.out.println(bot.getMode());
 
         MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
         data.add("user_id", bot.getUserId().toString());
-        data.add("direction", direction.toString());
-
+        if("snake".equals(bot.getMode())) {
+            data.add("direction", res.toString());
+            data.add("mode", "snake");
+        }
+        else if("gobang".equals(bot.getMode()))  {
+            data.add("step", res.toString());
+            data.add("mode", "gobang");
+        }
         restTemplate.postForObject(receiveBotMoveUrl, data, String.class);
     }
 }

@@ -17,7 +17,20 @@ public class ReceiveBotMoveController {
     @PostMapping("/pk/receive/bot/move/")
     public String receiveBotMove(@RequestParam MultiValueMap<String, String> data) {
         Integer userId = Integer.parseInt(Objects.requireNonNull(data.getFirst("user_id")));
-        Integer direction = Integer.parseInt(Objects.requireNonNull(data.getFirst("direction")));
-        return receiveBotMoveService.receiveBotMove(userId, direction);
+        String mode = data.getFirst("mode");
+        Integer operate = -1;
+        System.out.print("data = ");
+        System.out.println(data);
+        if("snake".equals(mode)) {
+            operate = Integer.parseInt(Objects.requireNonNull(data.getFirst("direction")));
+            System.out.print("snake_operate = ");
+            System.out.println(operate);
+        }
+        else if("gobang".equals(mode)) {
+            operate = Integer.parseInt(Objects.requireNonNull(data.getFirst("step")));
+            System.out.print("gobang_operate = ");
+            System.out.println(operate);
+        }
+        return receiveBotMoveService.receiveBotMove(userId, operate, mode);
     }
 }
