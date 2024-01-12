@@ -29,9 +29,6 @@ export class AcGameObject {
                 break;
             }
         }
-
-        delete this;
-        console.log("destroy successfully!");
     }
 }
 

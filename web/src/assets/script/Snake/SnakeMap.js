@@ -24,6 +24,7 @@ export class SnakeMap extends AcGameObject {
             new Snake({id: 0, color: "#4876EC", r: this.rows - 2, c: 1}, this),
             new Snake({id: 1, color: "#F94848", r: 1, c: this.cols - 2}, this),
         ];
+        this.move_music = new Audio(require("../../sound/蛇移动声音.wav"));
     }
 
     // 创建所有的墙
@@ -42,7 +43,6 @@ export class SnakeMap extends AcGameObject {
     }
 
     add_listening_events() {
-        const move_music = new Audio(require("../../sound/蛇移动声音.wav"));
         if(this.store.state.record.is_record) { // 录像
             let k = 0;
             const a_steps = this.store.state.record.a_steps;
@@ -61,9 +61,10 @@ export class SnakeMap extends AcGameObject {
                 } else {
                     snake0.set_direction(parseInt(a_steps[k]));
                     snake1.set_direction(parseInt(b_steps[k]));
-                    move_music.currentTime = 0;
-                    move_music.play();
-                    console.log("audio_playing");
+                    if(this.move_music != null) {
+                        this.move_music.currentTime = 0;
+                        this.move_music.play();
+                    }
                 }
                 k ++;
             }, 300)

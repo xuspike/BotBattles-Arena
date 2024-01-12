@@ -84,6 +84,7 @@ export class Player extends AcGameObject {
                 let x = chess.r, y = chess.c;
                 let i = 0;
                 while(i < 5 && count > 0) {
+                    if(x < 1 || x > 16 || y < 1 || y > 16) break;
                     if(this.last_L <= this.gamemap.L * 1.25) this.last_L += this.gamemap.L * 0.02;
                     if(this.gamemap.map[x][y] != 0) break;
                     this.gamemap.ctx.beginPath();
@@ -106,6 +107,7 @@ export class Player extends AcGameObject {
 
                 while(i < 5 && count > 0) {
                     x += this.dx[winner_direction + 4], y += this.dy[winner_direction + 4];
+                    if(x < 1 || x > 16 || y < 1 || y > 16) break;
                     if(this.gamemap.map[x][y] != 0) break;
                     i ++;
                     count --;
@@ -134,7 +136,10 @@ export class Player extends AcGameObject {
 
                 let i = 0;
                 while(i < 5 && count > 0) {
-                    if(this.gamemap.map[x][y] != 1) break;
+                    if(x < 1 || x > 16 || y < 1 || y > 16) break;
+                    if(this.gamemap.map[x][y] != 1) {
+                        break;
+                    } 
                     if(this.last_L <= this.gamemap.L * 1.25) this.last_L += this.gamemap.L * 0.02;
                     this.gamemap.ctx.beginPath();
                     this.gamemap.ctx.arc(x * this.gamemap.L, y * this.gamemap.L, this.last_L * 0.47, 0, Math.PI * 2);
@@ -156,6 +161,7 @@ export class Player extends AcGameObject {
 
                 while(i < 5 && count > 0) {
                     x += this.dx[winner_direction + 4], y += this.dy[winner_direction + 4];
+                    if(x < 1 || x > 16 || y < 1 || y > 16) break;
                     if(this.gamemap.map[x][y] != 1) break;
                     if(this.last_L <= this.gamemap.L * 1.25) this.last_L += this.gamemap.L * 0.02;
                     this.gamemap.ctx.beginPath();

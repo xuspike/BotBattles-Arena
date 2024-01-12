@@ -35,6 +35,10 @@ export class GoBangMap extends AcGameObject {
         this.mouse_x = null;
         this.mouse_y = null;
 
+        this.drop_music = new Audio(
+            require("@/assets/sound/在棋盘上落子的声音.mp3")
+          );
+
         this.dx = [0, 1, 1, 1, 0, -1, -1, -1];
         this.dy = [-1, -1, 0, 1, 1, 1, 0, -1];
        
@@ -74,28 +78,24 @@ export class GoBangMap extends AcGameObject {
                     let a_step = parseInt(a_steps[i]);
                     let flag = (a_step % 16 == 0) ? 0 : 1;
                     y = parseInt(a_step / 16 + flag), x = a_step % 16 + (1 - flag) * 16;
-                    // console.log("a_x = ", x);
-                    // console.log("a_y = ", y);
                     this.PlayerA.chesses.push(new Chess(x, y, "black"));
                     if(j >= 1) this.PlayerB.chesses[j - 1].is_last = false;
                     i ++;
-                    const move_music = new Audio(
-                        require("@/assets/sound/在棋盘上落子的声音.mp3")
-                      );
-                    move_music.play();
+                    if(this.drop_music != null) {
+                        this.drop_music.currentTime = 0;
+                        this.drop_music.play();
+                    }
                 } else if(i > j && j < b_steps.length) { // 白子下
                     let b_step = parseInt(b_steps[j]);
                     let flag = (b_step % 16 == 0) ? 0 : 1;
                     y = parseInt(b_step / 16 + flag), x = b_step % 16 + (1 - flag) * 16;
-                    // console.log("b_x = ", x);
-                    // console.log("b_y = ", y);
                     this.PlayerB.chesses.push(new Chess(x, y, "white"));
                     this.PlayerA.chesses[i - 1].is_last = false;
                     j ++;
-                    const move_music = new Audio(
-                        require("@/assets/sound/在棋盘上落子的声音.mp3")
-                      );
-                    move_music.play();
+                    if(this.drop_music != null) {
+                        this.drop_music.currentTime = 0;
+                        this.drop_music.play();
+                    }
                 }
                 if(i == a_steps.length && j == b_steps.length) 
                     clearInterval(interval_id);

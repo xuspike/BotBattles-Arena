@@ -89,6 +89,12 @@ export default {
   setup() {
     const store = useStore();
     const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;
+    let move_music = new Audio(require("@/assets/sound/蛇移动声音.wav"));
+    let drop_music = new Audio(
+      require("@/assets/sound/在棋盘上落子的声音.mp3")
+    );
+    let win_music = new Audio(require("@/assets/sound/游戏胜利音效.wav"));
+    let lose_music = new Audio(require("@/assets/sound/游戏失败音效.wav"));
 
     store.commit("updateLoser", "none");
     store.commit("updateIsRecord", false);
@@ -121,7 +127,6 @@ export default {
           setTimeout(() => {
             store.commit("updateStatus", "playing");
           }, 200);
-          console.log(data.game);
           store.commit("updateGame", data.game);
         } else if (data.event === "move") {
           hide_toast();
@@ -129,10 +134,10 @@ export default {
           const [snake0, snake1] = game.snakes;
           snake0.set_direction(data.a_direction);
           snake1.set_direction(data.b_direction);
-          const move_music = new Audio(
-            require("@/assets/sound/蛇移动声音.wav")
-          );
-          move_music.play();
+          if (move_music != null) {
+            move_music.currentTime = 0;
+            move_music.play();
+          }
         } else if (data.event === "drop") {
           const game = store.state.pk.gameObject;
           const playerA = game.PlayerA;
@@ -149,6 +154,10 @@ export default {
               playerA.chesses[playerA.chesses.length - 1].is_last = false;
             }
           }
+          if (drop_music != null) {
+            drop_music.currentTime = 0;
+            drop_music.play();
+          }
         } else if (data.event === "snake_result") {
           const game = store.state.pk.gameObject;
           const [snake0, snake1] = game.snakes;
@@ -159,10 +168,24 @@ export default {
           if (data.loser === "all" || data.loser === "B") {
             snake1.status = "die";
           }
+          if (data.loser === "A") {
+            if (store.state.user.id == store.state.pk.a_id) lose_music.play();
+            else win_music.play();
+          } else if (data.loser === "B") {
+            if (store.state.user.id == store.state.pk.a_id) win_music.play();
+            else lose_music.play();
+          }
           store.commit("updateLoser", data.loser);
         } else if (data.event === "gobang_result") {
           store.commit("updateLoser", data.loser);
           store.commit("updateWinnerDirection", data.winner_direction);
+          if (data.loser === "A") {
+            if (store.state.user.id == store.state.pk.a_id) lose_music.play();
+            else win_music.play();
+          } else if (data.loser === "B") {
+            if (store.state.user.id == store.state.pk.a_id) win_music.play();
+            else lose_music.play();
+          }
         }
       };
 

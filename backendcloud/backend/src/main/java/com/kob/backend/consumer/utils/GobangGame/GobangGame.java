@@ -161,8 +161,9 @@ public class GobangGame extends Thread{
     }
 
     private boolean judge(Integer next, String player) { // 判断玩家下一步棋子是否合法
-        int y = next / 16 + 1;
-        int x = next % 16;
+        int flag = (next % 16 == 0) ? 0 : 1;
+        int y = next / 16 + flag;
+        int x = next % 16 + (1 - flag) * 16;
 
         if(g[x][y] == -1){
             if("playerA".equals(player)) g[x][y] = 0;
@@ -198,7 +199,8 @@ public class GobangGame extends Thread{
 
     private void judge_result() { // 判断游戏输赢
         if(operator == 1) { // operator改变，此时operator = 1时，玩家A落子
-            int y = nextStepA / 16 + 1, x = nextStepA % 16;
+            int flag = (nextStepA % 16 == 0) ? 0 : 1;
+            int y = nextStepA / 16 + flag, x = nextStepA % 16 + (1 - flag) * 16;
             for(int i = 0; i < 4; i ++)
                 if(is_five(x, y, 0, i)) {
                     loser = "B";
@@ -206,7 +208,8 @@ public class GobangGame extends Thread{
                     winner_direction = i;
                 }
         } else {
-            int y = nextStepB / 16 + 1, x = nextStepB % 16;
+            int flag = (nextStepB % 16 == 0) ? 0 : 1;
+            int y = nextStepB / 16 + flag, x = nextStepB % 16 + (1 - flag) * 16;
             for(int i = 0; i < 4; i ++)
                 if(is_five(x, y, 1, i)) {
                     loser = "A";

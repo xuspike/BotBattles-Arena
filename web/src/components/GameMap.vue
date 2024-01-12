@@ -18,7 +18,7 @@ export default {
     // 绑定div和canvas
     let parent = ref(null);
     let canvas = ref(null);
-    let game_map;
+    let game_map = null;
 
     // 组件加载完后运行
     onMounted(() => {
@@ -41,8 +41,9 @@ export default {
 
     onBeforeRouteLeave((to, from, next) => {
       console.log("leaving");
-      console.log(game_map);
-      game_map.destroy();
+      // 停止播放
+      game_map.move_music = null;
+      game_map.drop_music = null;
       next();
     });
 
