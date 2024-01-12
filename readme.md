@@ -1,2 +1,2 @@
-# bots人机对战平台
+# BotBattles-Arena
 毕设开发中...
