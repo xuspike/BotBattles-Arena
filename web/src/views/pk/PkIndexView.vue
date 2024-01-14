@@ -159,7 +159,6 @@ export default {
             drop_music.play();
           }
         } else if (data.event === "fall") {
-          console.log(data);
           const game = store.state.pk.gameObject;
           const playerA = game.PlayerA;
           const playerB = game.PlayerB;
@@ -194,6 +193,16 @@ export default {
           }
           store.commit("updateLoser", data.loser);
         } else if (data.event === "gobang_result") {
+          store.commit("updateLoser", data.loser);
+          store.commit("updateWinnerDirection", data.winner_direction);
+          if (data.loser === "A") {
+            if (store.state.user.id == store.state.pk.a_id) lose_music.play();
+            else win_music.play();
+          } else if (data.loser === "B") {
+            if (store.state.user.id == store.state.pk.a_id) win_music.play();
+            else lose_music.play();
+          }
+        } else if (data.event === "gravity_result") {
           store.commit("updateLoser", data.loser);
           store.commit("updateWinnerDirection", data.winner_direction);
           if (data.loser === "A") {

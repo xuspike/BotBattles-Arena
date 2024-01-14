@@ -51,12 +51,10 @@ export class GravityMap extends AcGameObject {
                 const rect = this.ctx.canvas.getBoundingClientRect();
                 let x = (e.clientX - rect.left) / this.L, y = (e.clientY - rect.top) / this.L;
                 x = parseInt(x), y = parseInt(y);
-                console.log("(x, y) = (", x , ", ", y, ")");
 
                 // 前端也可以先判断是否合法
                 if(x >= 0 && x <= 6 && y >= 0 && y <= 6) {
                     let aid_x = x, aid_y = this.get_aidY(x);
-                    console.log("(aid_x, aid_y) = (", aid_x, ", ", aid_y, ")");
                     if(aid_y != -1) {
                         let step = aid_y * 7 + aid_x + 1;
                         if(this.store.state.user.id == this.store.state.pk.a_id) {

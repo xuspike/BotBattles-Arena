@@ -26,8 +26,7 @@ export class Player extends AcGameObject {
         let flag = (step % 7 == 0) ? -1 : 0;
         let y = parseInt(step / 7 + flag);
         let x = parseInt(step - 1) % 7;
-        console.log("fall_chess, ", x, " ", y);
-        if(this.id == 0) this.gamemap.map[x][y] = 0, console.log("in_map");
+        if(this.id == 0) this.gamemap.map[x][y] = 0;
         else this.gamemap.map[x][y] = 1;
         this.chesses.push(new Chess(x, y, this.color));
     }
@@ -37,7 +36,6 @@ export class Player extends AcGameObject {
             const chess = this.chesses[i];
             if(chess.status === "move") {
                 let move_distance = this.speed * this.timedelta / 1000;
-                console.log("move_distance = ", move_distance);
                 chess.pre_r += move_distance;
                 if(chess.pre_r > chess.r) {
                     chess.pre_r = chess.r;
