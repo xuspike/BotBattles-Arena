@@ -13,6 +13,8 @@ public class StartGameServiceImpl implements StartGameService {
             WebSocketServer.startSnakeGame(aId, aBotId, bId, bBotId);
         } else if("gobang".equals(mode)) {
             WebSocketServer.startGobangGame(aId, aBotId, bId, bBotId);
+        } else if("gravity".equals(mode)) {
+            WebSocketServer.startGravityGame(aId, aBotId, bId, bBotId);
         }
 
         return "start game success";

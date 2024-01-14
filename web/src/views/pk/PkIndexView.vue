@@ -158,6 +158,23 @@ export default {
             drop_music.currentTime = 0;
             drop_music.play();
           }
+        } else if (data.event === "fall") {
+          console.log(data);
+          const game = store.state.pk.gameObject;
+          const playerA = game.PlayerA;
+          const playerB = game.PlayerB;
+          if (data.player === "a") {
+            playerA.fall_chess(data.next_step);
+            // 将上一步棋子状态改变(is_last = false)
+            if (playerB.chesses.length > 0) {
+              playerB.chesses[playerB.chesses.length - 1].is_last = false;
+            }
+          } else if (data.player === "b") {
+            playerB.fall_chess(data.next_step);
+            if (playerA.chesses.length > 0) {
+              playerA.chesses[playerA.chesses.length - 1].is_last = false;
+            }
+          }
         } else if (data.event === "snake_result") {
           const game = store.state.pk.gameObject;
           const [snake0, snake1] = game.snakes;

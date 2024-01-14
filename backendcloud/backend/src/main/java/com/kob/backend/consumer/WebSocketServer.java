@@ -1,13 +1,11 @@
 package com.kob.backend.consumer;
 
 import com.alibaba.fastjson.JSONObject;
+import com.kob.backend.consumer.utils.GravityGame.GravityGame;
 import com.kob.backend.consumer.utils.SnakeGame.SnakeGame;
 import com.kob.backend.consumer.utils.GobangGame.GobangGame;
 import com.kob.backend.consumer.utils.JwtAuthentication;
-import com.kob.backend.mapper.BotMapper;
-import com.kob.backend.mapper.GobangRecordMapper;
-import com.kob.backend.mapper.RecordMapper;
-import com.kob.backend.mapper.UserMapper;
+import com.kob.backend.mapper.*;
 import com.kob.backend.pojo.Bot;
 import com.kob.backend.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +34,8 @@ public class WebSocketServer {
 
     public GobangGame GobangGame = null;
 
+    public GravityGame gravityGame = null;
+
     private final static String addPlayerUrl = "http://127.0.0.1:3001/player/add/";
     private final static String removePlayerUrl = "http://127.0.0.1:3001/player/remove/";
     public static RestTemplate restTemplate;
@@ -44,6 +44,7 @@ public class WebSocketServer {
     public static RecordMapper recordMapper;
     // 由于WebSocketServer不是单例的，需要用先定义static静态变量，再用类名接收
     public static GobangRecordMapper gobangRecordMapper;
+    public  static GravityRecordMapper gravityRecordMapper;
     @Autowired
     public void setUserMapper(UserMapper userMapper) {
         WebSocketServer.userMapper = userMapper;
@@ -57,6 +58,11 @@ public class WebSocketServer {
     @Autowired
     public void setGobangRecordMapper(GobangRecordMapper gobangRecordMapper) {
         WebSocketServer.gobangRecordMapper = gobangRecordMapper;
+    }
+
+    @Autowired
+    public void setGravityRecordMapper(GravityRecordMapper gravityRecordMapper) {
+        WebSocketServer.gravityRecordMapper = gravityRecordMapper;
     }
     @Autowired
     public void setRestTemplate(RestTemplate restTemplate) {
@@ -146,10 +152,44 @@ public class WebSocketServer {
             users.get(b.getId()).GobangGame = GobangGame;
         GobangGame.start(); // 另起线程执行
 
-        // 将玩家信息和地图封装在一起
+        // 将玩家信息封装在一起
         JSONObject respGame = new JSONObject();
         respGame.put("a_id", GobangGame.getPlayerA().getId());
         respGame.put("b_id", GobangGame.getPlayerB().getId());
+
+        JSONObject respA = new JSONObject();
+        respA.put("event", "success-matching");
+        respA.put("opponent_username", b.getUsername());
+        respA.put("opponent_photo", b.getPhoto());
+        respA.put("game", respGame);
+        if(users.get(a.getId()) != null)
+            users.get(a.getId()).sendMessage(respA.toJSONString());
+
+        JSONObject respB = new JSONObject();
+        respB.put("event", "success-matching");
+        respB.put("opponent_username", a.getUsername());
+        respB.put("opponent_photo", a.getPhoto());
+        respB.put("game", respGame);
+        if(users.get(b.getId()) != null)
+            users.get(b.getId()).sendMessage(respB.toJSONString());
+    }
+
+    public static void startGravityGame(Integer aId, Integer aBotId, Integer bId, Integer bBotId) {
+        User a = userMapper.selectById(aId), b = userMapper.selectById(bId);
+        Bot botA = botMapper.selectById(aBotId), botB = botMapper.selectById(bBotId);
+
+         GravityGame gravityGame = new GravityGame(aId, botA, bId, botB);
+
+        if(users.get(a.getId()) != null)
+            users.get(a.getId()).gravityGame = gravityGame;
+        if(users.get(b.getId()) != null)
+            users.get(b.getId()).gravityGame = gravityGame;
+        gravityGame.start(); // 另起线程执行
+
+        // 将玩家信息封装在一起
+        JSONObject respGame = new JSONObject();
+        respGame.put("a_id", gravityGame.getPlayerA().getId());
+        respGame.put("b_id", gravityGame.getPlayerB().getId());
 
         JSONObject respA = new JSONObject();
         respA.put("event", "success-matching");
@@ -204,6 +244,16 @@ public class WebSocketServer {
         }
     }
 
+    public void fall(int step) {
+        if(gravityGame.getPlayerA().getId().equals(user.getId()) && gravityGame.getOperator() == 0) {
+            if(gravityGame.getPlayerA().getBotId().equals(-1)) //亲自出马
+                gravityGame.setNextStepA(step);
+        } else if(gravityGame.getPlayerB().getId().equals(user.getId()) && gravityGame.getOperator() == 1) {
+            if(gravityGame.getPlayerB().getBotId().equals(-1)) //亲自出马
+                gravityGame.setNextStepB(step);
+        }
+    }
+
     @OnMessage
     public void onMessage(String message, Session session) { // 一般当做路由，判断把任务交给谁处理
         // 从Client接收消息
@@ -219,6 +269,8 @@ public class WebSocketServer {
             move(data.getInteger("direction"));
         } else if("drop".equals(event)) {
             drop(data.getInteger("step"));
+        } else if("fall".equals(event)) {
+            fall(data.getInteger("step"));
         }
     }
 

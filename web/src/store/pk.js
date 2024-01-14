@@ -1,7 +1,7 @@
 export default{
   state: {
     status: "game-selecting", // game-selecting表示选择界面，matching表示匹配界面，playing表示对战界面
-    mode: "", // snake表示贪吃蛇,gobang表示五子棋
+    mode: "", // snake表示贪吃蛇,gobang表示五子棋,gravity表示重力四子棋
     socket: null, // 前端和后端建立的连接
     opponent_username: "",
     opponent_photo: "",

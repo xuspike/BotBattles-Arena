@@ -43,12 +43,15 @@ export class Player extends AcGameObject {
                 }
             }
             this.gamemap.ctx.beginPath();
-            this.gamemap.ctx.arc(chess.r * this.gamemap.L, chess.c * this.gamemap.L, chess.current_L * 0.47, 0, Math.PI * 2);
+            if(chess.status === "stop")
+                this.gamemap.ctx.arc(chess.r * this.gamemap.L, chess.c * this.gamemap.L, this.gamemap.L * 0.47, 0, Math.PI * 2);
+            else 
+                this.gamemap.ctx.arc(chess.r * this.gamemap.L, chess.c * this.gamemap.L, chess.current_L * 0.47, 0, Math.PI * 2);
 
             // 让棋子有立体感
             let tx = this.color === "black" ? chess.r - 0.2 : chess.r + 0.2;
             let ty = this.color === "black" ? chess.c - 0.2 : chess.c + 0.2;
-            let style = this.gamemap.ctx.createRadialGradient(tx * this.gamemap.L, ty * this.gamemap.L, 0 * this.gamemap.L, tx * this.gamemap.L, ty * this.gamemap.L, chess.current_L * 0.5);
+            let style = this.gamemap.ctx.createRadialGradient(tx * this.gamemap.L, ty * this.gamemap.L, 0 * this.gamemap.L, tx * this.gamemap.L, ty * this.gamemap.L, this.gamemap.L * 0.5);
             style.addColorStop(0, this.color === "black" ? '#ccc' : '#666');
             style.addColorStop(1, this.color === "black" ? '#000' : '#fff');
             this.gamemap.ctx.fillStyle = style;
@@ -64,7 +67,7 @@ export class Player extends AcGameObject {
             if(i == this.chesses.length - 1 && chess.is_last) {
                 //将当前所下棋子标识
                 this.gamemap.ctx.beginPath();
-                this.gamemap.ctx.arc(chess.r * this.gamemap.L, chess.c * this.gamemap.L, chess.current_L * 0.15, 0, Math.PI * 2);
+                this.gamemap.ctx.arc(chess.r * this.gamemap.L, chess.c * this.gamemap.L, this.gamemap.L * 0.15, 0, Math.PI * 2);
                 this.gamemap.ctx.fillStyle = "red";
                 this.gamemap.ctx.fill();
                 this.gamemap.ctx.closePath();

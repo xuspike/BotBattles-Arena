@@ -7,6 +7,7 @@
         @click="click_select_game('snake')"
       >
         <div class="b-game-card__cover">
+          <span style="margin-left: auto">贪吃蛇对战</span>
           <img
             style="width: 100%; height: 100%"
             src="../assets/images/snake.png"
@@ -27,7 +28,11 @@
           />
         </div>
       </div>
-      <div class="b-game-card">
+      <div
+        class="b-game-card"
+        style="user-select: none; cursor: pointer"
+        @click="click_select_game('gravity')"
+      >
         <div class="b-game-card__cover"></div>
       </div>
       <div class="b-game-card">

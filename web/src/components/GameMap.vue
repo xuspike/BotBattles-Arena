@@ -8,6 +8,7 @@
 <script>
 import { SnakeMap } from "@/assets/script/Snake/SnakeMap";
 import { GoBangMap } from "@/assets/script/GoBang/GoBangMap";
+import { GravityMap } from "@/assets/script/Gravity/GravityMap";
 import { ref, onMounted } from "vue";
 import { useStore } from "vuex";
 import { onBeforeRouteLeave } from "vue-router";
@@ -28,22 +29,27 @@ export default {
           parent.value,
           store
         );
-        store.commit("updateGameObject", game_map);
       } else if (store.state.pk.mode === "gobang") {
         game_map = new GoBangMap(
           canvas.value.getContext("2d"),
           parent.value,
           store
         );
-        store.commit("updateGameObject", game_map);
+      } else if (store.state.pk.mode === "gravity") {
+        game_map = new GravityMap(
+          canvas.value.getContext("2d"),
+          parent.value,
+          store
+        );
       }
+      store.commit("updateGameObject", game_map);
     });
 
     onBeforeRouteLeave((to, from, next) => {
       console.log("leaving");
       // 停止播放
-      game_map.move_music = null;
-      game_map.drop_music = null;
+      if (store.state.pk.mode === "snake") game_map.move_music = null;
+      if (store.state.pk.mode === "gobang") game_map.drop_music = null;
       next();
     });
 

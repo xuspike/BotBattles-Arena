@@ -28,6 +28,7 @@ public class MatchingController {
     public String RemovePlayer(@RequestParam MultiValueMap<String, String> data) {
         Integer userId = Integer.parseInt(Objects.requireNonNull(data.getFirst("user_id")));
         String mode = data.getFirst("mode");
+        System.out.println("remove_player" + mode);
         return matchingService.removePlayer(userId, mode);
     }
 }
