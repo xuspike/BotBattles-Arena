@@ -40,7 +40,7 @@ public class WebSocketServer {
     private final static String removePlayerUrl = "http://127.0.0.1:3001/player/remove/";
     public static RestTemplate restTemplate;
     public static UserMapper userMapper;
-    private static BotMapper botMapper;
+    public static BotMapper botMapper;
     public static RecordMapper recordMapper;
     // 由于WebSocketServer不是单例的，需要用先定义static静态变量，再用类名接收
     public static GobangRecordMapper gobangRecordMapper;

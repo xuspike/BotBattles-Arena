@@ -19,6 +19,8 @@ public class Bot {
     private String title;
     private String description;
     private String content;
+    private Integer winNumber;
+    private Integer gameNumber;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai") // 定义日期格式
     private Date createtime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")

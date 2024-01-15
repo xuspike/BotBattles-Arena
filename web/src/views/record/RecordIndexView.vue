@@ -4,14 +4,19 @@
       <el-radio-group v-model="mode">
         <el-radio-button @click="click_mode('贪吃蛇')" label="贪吃蛇" />
         <el-radio-button @click="click_mode('五子棋')" label="五子棋" />
+        <el-radio-button @click="click_mode('重力棋')" label="重力棋" />
       </el-radio-group>
     </div>
     <table class="table rwd-table" style="text-align: center">
       <thead>
         <tr>
-          <th>蓝色方</th>
+          <th v-if="mode === '贪吃蛇'">蓝方</th>
+          <th v-else-if="mode === '五子棋'">黑方</th>
+          <th v-else>红方</th>
           <th>玩家A</th>
-          <th>红色方</th>
+          <th v-if="mode === '贪吃蛇'">红方</th>
+          <th v-else-if="mode === '五子棋'">白方</th>
+          <th else>黄方</th>
           <th>玩家B</th>
           <th>对战结果</th>
           <th>对战时间</th>
@@ -121,6 +126,8 @@ export default {
       let url = "http://127.0.0.1:3000/api/record/getlist/";
       if (mode.value === "五子棋")
         url = "http://127.0.0.1:3000/api/gobang_record/getlist/";
+      else if (mode.value === "重力棋")
+        url = "http://127.0.0.1:3000/api/gravity_record/getlist/";
       $.ajax({
         url: url,
         type: "get",
@@ -158,6 +165,7 @@ export default {
     const open_aid_record = (recordId) => {
       if (mode.value === "贪吃蛇") open_SnakeRecord_content(recordId);
       else if (mode.value === "五子棋") open_GobangRecord_content(recordId);
+      else if (mode.value === "重力棋") open_GravityRecord_content(recordId);
     };
 
     const open_SnakeRecord_content = (recordId) => {
@@ -216,11 +224,38 @@ export default {
       }
     };
 
+    const open_GravityRecord_content = (recordId) => {
+      for (const record of records.value) {
+        if (record.record.id === recordId) {
+          store.commit("updateIsRecord", true);
+          store.commit("updateMode", "gravity");
+          store.commit("updateGame", {
+            a_id: record.record.aid,
+            b_id: record.record.bid,
+          });
+          store.commit("updateSteps", {
+            a_steps: record.record.asteps,
+            b_steps: record.record.bsteps,
+          });
+          store.commit("updateRecordLoser", record.record.loser);
+          store.commit("updateWinnerDirection", record.record.winnerDirection);
+          router.push({
+            name: "record_content",
+            params: {
+              recordId,
+            },
+          });
+          break;
+        }
+      }
+    };
+
     onMounted(() => {
       pull_page(current_page);
     });
 
     return {
+      store,
       records,
       pages,
       mode,
@@ -308,7 +343,7 @@ h1 {
 }
 
 .rwd-table {
-  background: #34495e;
+  background: #2e2e2e;
   color: #fff;
   border-radius: 0.4em;
   overflow: hidden;

@@ -197,12 +197,12 @@ h1 {
 }
 
 .rwd-table {
-  background: #34495e;
+  background: #2e2e2e;
   color: #fff;
   border-radius: 0.4em;
   overflow: hidden;
   tr {
-    border-color: lighten(#34495e, 10%);
+    border-color: lighten(#2e2e2e, 10%);
   }
   th,
   td {

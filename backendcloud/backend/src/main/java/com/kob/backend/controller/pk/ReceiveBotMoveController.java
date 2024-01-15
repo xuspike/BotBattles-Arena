@@ -30,6 +30,10 @@ public class ReceiveBotMoveController {
             operate = Integer.parseInt(Objects.requireNonNull(data.getFirst("step")));
             System.out.print("gobang_operate = ");
             System.out.println(operate);
+        } else if("gravity".equals(mode)) {
+            operate = Integer.parseInt(Objects.requireNonNull(data.getFirst("step")));
+            System.out.print("gobang_operate = ");
+            System.out.println(operate);
         }
         return receiveBotMoveService.receiveBotMove(userId, operate, mode);
     }

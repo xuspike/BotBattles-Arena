@@ -50,6 +50,7 @@ export default {
       // 停止播放
       if (store.state.pk.mode === "snake") game_map.move_music = null;
       if (store.state.pk.mode === "gobang") game_map.drop_music = null;
+      if (store.state.pk.mode === "gravity") game_map.collision_music = null;
       next();
     });
 

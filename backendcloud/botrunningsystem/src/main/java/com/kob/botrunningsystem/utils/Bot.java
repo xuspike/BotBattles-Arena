@@ -9,9 +9,9 @@ public class Bot implements java.util.function.Supplier<Integer>{
 
     //初始化g
     public void init_g() {
-        g = new int[17][17];
-        for(int i = 1; i <= 16; i ++)
-            for(int j = 1; j <= 16; j ++)
+        g = new int[7][7];
+        for(int i = 0; i < 7; i ++)
+            for(int j = 0; j < 7; j ++)
                 g[i][j] = -1;
     }
 
@@ -24,7 +24,7 @@ public class Bot implements java.util.function.Supplier<Integer>{
     }
 
     public int change_step(int x, int y) {
-        return (y - 1) * 16 + x;
+        return y * 7 + x + 1;
     }
 
     // 获取下一步
@@ -42,8 +42,8 @@ public class Bot implements java.util.function.Supplier<Integer>{
             String str_step = a_steps[i];
             if("".equals(str_step)) continue;
             int step = get_int(str_step);
-            int flag = (step % 16 == 0) ? 0 : 1;
-            int y = step / 16 + flag, x = step % 16 + (flag ^ 1) * 16;
+            int flag = (step % 7 == 0) ? -1 : 0;
+            int y = step / 7 + flag, x = (step - 1) % 7;
             g[x][y] = 0;
         }
 
@@ -51,12 +51,12 @@ public class Bot implements java.util.function.Supplier<Integer>{
             String str_step = b_steps[i];
             if("".equals(str_step)) continue;
             int step = get_int(str_step);
-            int flag = (step % 16 == 0) ? 0 : 1;
-            int y = step / 16 + flag, x = step % 16 + (flag ^ 1) * 16;
+            int flag = (step % 7 == 0) ? -1 : 0;
+            int y = step / 7 + flag, x = (step - 1) % 7;
             g[x][y] = 1;
         }
-        for(int y = 1; y <= 16; y ++)
-            for(int x = 1; x <= 16; x ++) {
+        for(int y = 6; y >= 0; y --)
+            for(int x = 6; x >= 0; x --) {
                 if(g[x][y] == -1) {
                     return change_step(x, y);
                 }

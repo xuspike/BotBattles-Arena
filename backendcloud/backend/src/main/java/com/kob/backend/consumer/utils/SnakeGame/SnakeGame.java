@@ -22,6 +22,7 @@ public class SnakeGame extends Thread{
     private final static int[] dx = {-1, 0, 1, 0}, dy = {0, 1, 0, -1};
 
     private final Player PlayerA, PlayerB;
+    private Bot botA = null, botB = null;
     // 两名玩家的下一步操作
     private Integer nextStepA = null;
     private Integer nextStepB = null;
@@ -44,10 +45,12 @@ public class SnakeGame extends Thread{
         if(botA != null) {
             botIdA = botA.getId();
             botCodeA = botA.getContent();
+            this.botA = botA;
         }
         if(botB != null) {
             botIdB = botB.getId();
             botCodeB = botB.getContent();
+            this.botB = botB;
         }
         PlayerA = new Player(idA, botIdA, botCodeA, rows - 2, 1, new ArrayList<>());
         PlayerB = new Player(idB, botIdB, botCodeB, 1, cols - 2, new ArrayList<>());
@@ -303,6 +306,19 @@ public class SnakeGame extends Thread{
                 new Date()
         );
         WebSocketServer.recordMapper.insert(record);
+
+        if(botA != null) {
+            int flag = 0;
+            if(this.loser == "B") flag = 1;
+            Bot new_botA = new Bot(botA.getId(), botA.getUserId(), botA.getTitle(), botA.getDescription(), botA.getContent(), botA.getWinNumber() + flag, botA.getGameNumber() + 1, botA.getCreatetime(), botA.getModifytime());
+            WebSocketServer.botMapper.updateById(new_botA);
+        }
+        if(botB != null) {
+            int flag = 0;
+            if(this.loser == "A") flag = 1;
+            Bot new_botB = new Bot(botB.getId(), botB.getUserId(), botB.getTitle(), botB.getDescription(), botB.getContent(), botB.getWinNumber() + flag, botB.getGameNumber() + 1, botB.getCreatetime(), botB.getModifytime());
+            WebSocketServer.botMapper.updateById(new_botB);
+        }
     }
 
     private void sendResult() { // 向两个client广播结果

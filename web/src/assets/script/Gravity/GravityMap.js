@@ -1,7 +1,7 @@
 import { AcGameObject } from "../AcGameObject";
 import { Player } from "./Player";
 import { Hole } from "./Hole";
-// import {Chess} from "./Chess";
+import {Chess} from "./Chess";
 
 export class GravityMap extends AcGameObject {
     constructor(ctx, parent, store) {
@@ -15,10 +15,12 @@ export class GravityMap extends AcGameObject {
         this.rows = 7;
         this.cols = 7;
 
+        this.collision_music = new Audio(require("@/assets/sound/棋子碰撞音效.wav"));
+
         this.map = new Array();
         this.hole = new Hole(this);
-        this.PlayerA = new Player({id: 0, color: "black"}, this);
-        this.PlayerB = new Player({id: 1, color: "white"}, this);
+        this.PlayerA = new Player({id: 0, color: "#FE490A"}, this);
+        this.PlayerB = new Player({id: 1, color: "#FFE746"}, this);
     }
 
     start() {
@@ -33,6 +35,8 @@ export class GravityMap extends AcGameObject {
                 this.map[i][j] = -1;
             }
         }
+        // 解決報錯
+        this.collision_music.currentTime = 0;
     }
 
     get_aidY(x) {
@@ -44,7 +48,33 @@ export class GravityMap extends AcGameObject {
 
     add_listening_events() {
         if(this.store.state.record.is_record) {
-            console.log("record");
+            const a_steps = this.store.state.record.a_steps.split(',');
+            const b_steps = this.store.state.record.b_steps.split(',');
+            if(a_steps[0] === '') a_steps.pop(); 
+            if(b_steps[0] === '') b_steps.pop();
+
+            let i = 0, j = 0;
+            let x = -1, y = -1;
+            const interval_id = setInterval(() => {
+                // 黑子下
+                if(i <= j && i < a_steps.length) {
+                    let a_step = parseInt(a_steps[i]);
+                    let flag = (a_step % 7 == 0) ? -1 : 0;
+                    y = parseInt(a_step / 7 + flag), x = parseInt(a_step - 1) % 7;
+                    this.PlayerA.chesses.push(new Chess(x, y, "#FE490A"));
+                    if(j >= 1) this.PlayerB.chesses[j - 1].is_last = false;
+                    i ++;
+                } else if(i > j && j < b_steps.length) { // 白子下
+                    let b_step = parseInt(b_steps[j]);
+                    let flag = (b_step % 7 == 0) ? -1 : 0;
+                    y = parseInt(b_step / 7 + flag), x = parseInt(b_step - 1) % 7;
+                    this.PlayerB.chesses.push(new Chess(x, y, "#FFE746"));
+                    this.PlayerA.chesses[i - 1].is_last = false;
+                    j ++;
+                }
+                if(i == a_steps.length && j == b_steps.length)
+                    clearInterval(interval_id);
+            }, 500)
         } else {
             this.ctx.canvas.focus();
             this.ctx.canvas.addEventListener('click', e => { 
@@ -106,7 +136,7 @@ export class GravityMap extends AcGameObject {
         this.ctx.arcTo(x, y + size, x, y + size - borderRadius, borderRadius);
         this.ctx.arcTo(x, y, x + borderRadius, y, borderRadius);
         this.ctx.closePath();
-        this.ctx.fillStyle = '#3ABCF5';
+        this.ctx.fillStyle = '#59A9C7';
         this.ctx.fill();
     }
 }

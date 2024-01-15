@@ -3,6 +3,7 @@ import PkIndexView from '../views/pk/PkIndexView';
 import RecordIndexView from '../views/record/RecordIndexView';
 import RecordContentView from '../views/record/RecordContentView';
 import RankListIndexView from '../views/ranklist/RankListIndexView';
+import DynamicIndexView from '../views/dynamic/DynamicIndexView';
 import UserBotIndexView from '../views/user/bot/UserBotIndexView';
 import NotFound from '../views/error/NotFound';
 import UserAccountLoginView from '../views/user/account/UserAccountLoginView';
@@ -48,6 +49,14 @@ const routes = [
     path: '/ranklist/',
     component: RankListIndexView,
     name: "ranklist_index",
+    meta: {
+      requestAuth: true,
+    }
+  },
+  {
+    path: '/dynamic/',
+    component: DynamicIndexView,
+    name: "dynamic_index",
     meta: {
       requestAuth: true,
     }

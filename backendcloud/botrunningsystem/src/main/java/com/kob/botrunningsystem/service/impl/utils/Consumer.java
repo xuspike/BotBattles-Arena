@@ -78,6 +78,9 @@ public class Consumer extends Thread{
         else if("gobang".equals(bot.getMode()))  {
             data.add("step", res.toString());
             data.add("mode", "gobang");
+        } else if("gravity".equals(bot.getMode())) {
+            data.add("step", res.toString());
+            data.add("mode", "gravity");
         }
         restTemplate.postForObject(receiveBotMoveUrl, data, String.class);
     }

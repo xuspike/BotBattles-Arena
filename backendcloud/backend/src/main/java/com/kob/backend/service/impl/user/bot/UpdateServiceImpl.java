@@ -80,6 +80,8 @@ public class UpdateServiceImpl implements UpdateService {
                 title,
                 description,
                 content,
+                bot.getWinNumber(),
+                bot.getGameNumber(),
                 bot.getCreatetime(),
                 new Date()
         );

@@ -2,6 +2,7 @@ package com.kob.backend.service.impl.pk;
 
 import com.kob.backend.consumer.WebSocketServer;
 import com.kob.backend.consumer.utils.GobangGame.GobangGame;
+import com.kob.backend.consumer.utils.GravityGame.GravityGame;
 import com.kob.backend.consumer.utils.SnakeGame.SnakeGame;
 import com.kob.backend.service.pk.ReceiveBotMoveService;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,15 @@ public class ReceiveBotMoveServiceImpl implements ReceiveBotMoveService {
                         gobangGame.setNextStepA(operate);
                     } else if(gobangGame.getPlayerB().getId().equals(userId)) {
                         gobangGame.setNextStepB(operate);
+                    }
+                }
+            } else if("gravity".equals(mode)) {
+                GravityGame gravityGame = WebSocketServer.users.get(userId).gravityGame;
+                if(gravityGame != null) {
+                    if(gravityGame.getPlayerA().getId().equals(userId)) {
+                        gravityGame.setNextStepA(operate);
+                    } else if(gravityGame.getPlayerB().getId().equals(userId)) {
+                        gravityGame.setNextStepB(operate);
                     }
                 }
             }
