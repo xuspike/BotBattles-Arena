@@ -125,11 +125,27 @@
     <el-row>
       <el-col :span="2"></el-col>
       <el-col :span="22">
-        <div class="parent-content">
+        <div class="parent-content" :id="get_parentContent(dynamic.parent.id)">
           {{ dynamic.parent.content }}
         </div>
       </el-col>
     </el-row>
+    <a
+      class="parent-unfold"
+      v-if="dynamic.is_unfold"
+      @click="change_is_unfold(dynamic)"
+      style="cursor: pointer; text-decoration: none"
+    >
+      展开
+    </a>
+    <a
+      class="parent-fold"
+      v-else
+      @click="change_is_unfold(dynamic)"
+      style="cursor: pointer; text-decoration: none"
+    >
+      收起
+    </a>
   </ContentField>
 </template>
 
@@ -282,20 +298,34 @@ export default {
             for (let i = 0; i < resp.dynamics.length; i++) {
               pastTime = change_date(resp.dynamics[i].parent.createtime);
               resp.dynamics[i].parent.pastTime = pastTime;
+              resp.dynamics[i].is_unfold = true;
               for (let j = 0; j < resp.dynamics[i].children.length; j++) {
                 pastTime = change_date(resp.dynamics[i].children[j].createtime);
-                resp.dynamics[i].children[j].pastTime = pastTime;
               }
             }
-
             dynamics.value = dynamics.value.concat(resp.dynamics);
             console.log(dynamics.value);
+            let parent_contents =
+              document.getElementsByClassName("parent-content");
+
+            for (let i = 0; i < parent_contents.length; i++)
+              parent_contents[i].id = "parent-content" + (i + 1);
           }
         },
         error(resp) {
           console.log(resp);
         },
       });
+    };
+
+    const get_parentContent = (id) => {
+      return "parent-content" + id;
+    };
+
+    const change_is_unfold = (dynamic) => {
+      console.log(dynamic);
+      if (dynamic.is_unfold) dynamic.is_unfold = false;
+      else dynamic.is_unfold = true;
     };
 
     onMounted(() => {
@@ -316,12 +346,22 @@ export default {
       create_dynamic,
       pull_dynamics,
       add_dynamics,
+      change_is_unfold,
+      get_parentContent,
     };
   },
 };
 </script>
 
 <style scoped>
+.parent-unfold {
+  color: lightblue;
+  font-size: small;
+}
+.parent-fold {
+  color: lightblue;
+  font-size: small;
+}
 .parent-content {
   margin-left: 1vw;
 }
