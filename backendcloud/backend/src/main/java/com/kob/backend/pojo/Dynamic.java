@@ -25,5 +25,5 @@ public class Dynamic {
     private String photos;
     private Integer likes;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai") // 定义日期格式
-    private Date datetime;
+    private Date createtime;
 }
