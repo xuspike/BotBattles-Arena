@@ -41,8 +41,13 @@ public class GetDynamicListServiceImpl implements GetDynamicListService {
             items.add(item);
         }
 
+        queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("reply_id", -1);
+
+
         JSONObject resp = new JSONObject();
         resp.put("dynamics", items);
+        resp.put("parentCnt", dynamicMapper.selectCount(queryWrapper));
         resp.put("result", "success");
 
         return resp;

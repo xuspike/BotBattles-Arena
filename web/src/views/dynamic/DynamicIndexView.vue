@@ -1,159 +1,269 @@
-<template class="dynamic-content" v-infinite-scroll="add_dynamics">
-  <ContentField style="width: 60%">
-    <div class="tab-container">
-      <el-tabs type="border-card">
-        <el-tab-pane label="全部">
-          <el-row>
-            <el-col :span="2">
-              <el-avatar :size="50" :src="store.state.user.photo" />
-            </el-col>
-            <el-col :span="20">
-              <el-input
-                v-model="textarea"
-                autosize:autosize="{ minRows: 2, maxRows: 10 }"
-                type="textarea"
-                placeholder="畅所欲言吧！"
-              />
-            </el-col>
-            <el-col :span="2">
-              <el-button
-                type="info"
-                round
-                style="margin-top: 3.5vh; margin-left: 0.8vw"
-                @click="create_dynamic(-1)"
-                >发布</el-button
-              >
-            </el-col>
-          </el-row>
-          <!-- <div v-if="is_upload_visiable == true"></div> -->
-          <div class="demo-collapse">
-            <el-collapse v-model="activeNames" @change="handleChange">
-              <el-collapse-item name="1">
-                <template #title>
-                  <el-row style="color: white">
-                    <el-col :span="22">添加照片</el-col>
-                    <el-col :span="2"
-                      ><el-icon><Picture /></el-icon
-                    ></el-col>
-                  </el-row>
-                </template>
-                <el-upload
-                  v-model:file-list="fileList"
-                  action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-                  list-type="picture-card"
-                  :on-preview="handlePictureCardPreview"
-                  :on-remove="handleRemove"
-                  style="background-color: #2e2e2e"
-                >
-                  <el-icon><Plus /></el-icon>
-                  <el-dialog v-model="dialogVisible">
-                    <img w-full :src="dialogImageUrl" alt="Preview Image" />
-                  </el-dialog>
-                </el-upload>
-              </el-collapse-item>
-            </el-collapse>
-          </div>
-        </el-tab-pane>
-        <el-tab-pane label="好友"
-          ><el-row>
-            <el-col :span="2">
-              <el-avatar :size="50" :src="store.state.user.photo" />
-            </el-col>
-            <el-col :span="20">
-              <el-input
-                v-model="textarea"
-                autosize:autosize="{ minRows: 2, maxRows: 10 }"
-                type="textarea"
-                placeholder="畅所欲言吧！"
-              />
-            </el-col>
-            <el-col :span="2">
-              <el-button
-                type="info"
-                round
-                style="margin-top: 3.5vh; margin-left: 0.8vw"
-                >发布</el-button
-              >
-            </el-col> </el-row
-          ><!-- <div v-if="is_upload_visiable == true"></div> -->
-          <div class="demo-collapse">
-            <el-collapse v-model="activeNames" @change="handleChange">
-              <el-collapse-item name="1">
-                <template #title>
-                  <el-row style="color: white">
-                    <el-col :span="22">添加照片</el-col>
-                    <el-col :span="2"
-                      ><el-icon><Picture /></el-icon
-                    ></el-col>
-                  </el-row>
-                </template>
-                <el-upload
-                  v-model:file-list="fileList"
-                  action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-                  list-type="picture-card"
-                  :on-preview="handlePictureCardPreview"
-                  :on-remove="handleRemove"
-                  style="background-color: #2e2e2e"
-                >
-                  <el-icon><Plus /></el-icon>
-                  <el-dialog v-model="dialogVisible">
-                    <img w-full :src="dialogImageUrl" alt="Preview Image" />
-                  </el-dialog>
-                </el-upload>
-              </el-collapse-item>
-            </el-collapse></div
-        ></el-tab-pane>
-      </el-tabs>
-    </div>
-  </ContentField>
-  <ContentField
-    v-for="dynamic in dynamics"
-    :key="dynamic.parent.id"
-    style="width: 60%; color: white"
+<template>
+  <div
+    class="dynamic-content"
+    v-infinite-scroll="load"
+    :infinite-scroll-disabled="disabled"
+    infinite-scroll-distance="1"
   >
-    <el-row>
-      <el-col :span="2">
-        <el-avatar :size="45" :src="dynamic.parent.userPhoto"></el-avatar>
-      </el-col>
-      <e-col :span="4">
-        <div style="margin-left: 1vw">{{ dynamic.parent.username }}</div>
-        <div style="margin-left: 1vw; color: gray; font-size: small">
-          {{ dynamic.parent.pastTime }}
-        </div>
-      </e-col>
-    </el-row>
-    <el-row>
-      <el-col :span="2"></el-col>
-      <el-col :span="22">
-        <div class="parent-content" :id="get_parentContent(dynamic.parent.id)">
-          {{ dynamic.parent.content }}
-        </div>
-      </el-col>
-    </el-row>
-    <a
-      class="parent-unfold"
-      v-if="dynamic.is_unfold"
-      @click="change_is_unfold(dynamic)"
-      style="cursor: pointer; text-decoration: none"
+    <ContentField style="width: 60%">
+      <div class="tab-container">
+        <el-tabs type="border-card">
+          <el-tab-pane label="全部">
+            <el-row>
+              <el-col :span="2">
+                <el-avatar :size="50" :src="store.state.user.photo" />
+              </el-col>
+              <el-col :span="20">
+                <el-input
+                  v-model="textarea"
+                  autosize:autosize="{ minRows: 2, maxRows: 10 }"
+                  type="textarea"
+                  placeholder="畅所欲言吧！"
+                />
+              </el-col>
+              <el-col :span="2">
+                <el-button
+                  type="info"
+                  round
+                  style="margin-top: 3.5vh; margin-left: 0.8vw"
+                  @click="create_dynamic(-1)"
+                  >发布</el-button
+                >
+              </el-col>
+            </el-row>
+            <!-- <div v-if="is_upload_visiable == true"></div> -->
+            <div class="demo-collapse">
+              <el-collapse v-model="activeNames" @change="handleChange">
+                <el-collapse-item name="1">
+                  <template #title>
+                    <el-row style="color: white">
+                      <el-col :span="22">添加照片</el-col>
+                      <el-col :span="2"
+                        ><el-icon><Picture /></el-icon
+                      ></el-col>
+                    </el-row>
+                  </template>
+                  <el-upload
+                    v-model:file-list="fileList"
+                    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                    list-type="picture-card"
+                    :on-preview="handlePictureCardPreview"
+                    :on-remove="handleRemove"
+                    style="background-color: #2e2e2e"
+                  >
+                    <el-icon><Plus /></el-icon>
+                    <el-dialog v-model="dialogVisible">
+                      <img w-full :src="dialogImageUrl" alt="Preview Image" />
+                    </el-dialog>
+                  </el-upload>
+                </el-collapse-item>
+              </el-collapse>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="好友"
+            ><el-row>
+              <el-col :span="2">
+                <el-avatar :size="50" :src="store.state.user.photo" />
+              </el-col>
+              <el-col :span="20">
+                <el-input
+                  v-model="textarea"
+                  autosize:autosize="{ minRows: 2, maxRows: 10 }"
+                  type="textarea"
+                  placeholder="畅所欲言吧！"
+                />
+              </el-col>
+              <el-col :span="2">
+                <el-button
+                  type="info"
+                  round
+                  style="margin-top: 3.5vh; margin-left: 0.8vw"
+                  >发布</el-button
+                >
+              </el-col> </el-row
+            ><!-- <div v-if="is_upload_visiable == true"></div> -->
+            <div class="demo-collapse">
+              <el-collapse v-model="activeNames" @change="handleChange">
+                <el-collapse-item name="1">
+                  <template #title>
+                    <el-row style="color: white">
+                      <el-col :span="22">添加照片</el-col>
+                      <el-col :span="2"
+                        ><el-icon><Picture /></el-icon
+                      ></el-col>
+                    </el-row>
+                  </template>
+                  <el-upload
+                    v-model:file-list="fileList"
+                    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                    list-type="picture-card"
+                    :on-preview="handlePictureCardPreview"
+                    :on-remove="handleRemove"
+                    style="background-color: #2e2e2e"
+                  >
+                    <el-icon><Plus /></el-icon>
+                    <el-dialog v-model="dialogVisible">
+                      <img w-full :src="dialogImageUrl" alt="Preview Image" />
+                    </el-dialog>
+                  </el-upload>
+                </el-collapse-item>
+              </el-collapse></div
+          ></el-tab-pane>
+        </el-tabs>
+      </div>
+    </ContentField>
+    <ContentField
+      v-for="dynamic in dynamics"
+      :key="dynamic.parent.id"
+      style="width: 60%; color: white"
     >
-      展开
-    </a>
-    <a
-      class="parent-fold"
-      v-else
-      @click="change_is_unfold(dynamic)"
-      style="cursor: pointer; text-decoration: none"
+      <el-dialog
+        v-model="dynamic.parent.centerDialogVisible"
+        title="Warning"
+        width="30%"
+        align-center
+      >
+        <span>您是否要删除该动态？</span>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="dynamic.parent.centerDialogVisible = false"
+              >取消</el-button
+            >
+            <el-button type="danger" @click="deleteDynamic(dynamic.parent.id)">
+              确认
+            </el-button>
+          </span>
+        </template>
+      </el-dialog>
+
+      <el-row>
+        <el-col :span="2">
+          <el-avatar :size="45" :src="dynamic.parent.userPhoto"></el-avatar>
+        </el-col>
+        <e-col :span="4">
+          <div style="margin-left: 1vw">{{ dynamic.parent.username }}</div>
+          <div style="margin-left: 1vw; color: gray; font-size: small">
+            {{ dynamic.parent.pastTime }}
+          </div>
+        </e-col>
+        <el-col
+          :span="18"
+          style="text-align: right"
+          v-if="store.state.user.id == dynamic.parent.userId"
+          @click="dynamic.parent.centerDialogVisible = true"
+          ><el-icon color="red" style="cursor: pointer"><Delete /></el-icon
+        ></el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="2"></el-col>
+        <el-col :span="22">
+          <pre
+            class="parent-content"
+            :id="get_parentContent(dynamic.parent.id)"
+            style="
+              transition: max-height 0.5s ease;
+              max-height: 200px;
+              overflow: hidden;
+              white-space: pre-line;
+            "
+            v-html="dynamic.parent.content"
+          ></pre>
+        </el-col>
+      </el-row>
+      <div v-if="dynamic.have_fold_button">
+        <a
+          class="parent-unfold"
+          v-if="dynamic.is_unfold"
+          @click="change_is_unfold(dynamic)"
+          style="cursor: pointer; text-decoration: none"
+        >
+          展开
+        </a>
+        <a
+          class="parent-fold"
+          v-else
+          @click="change_is_unfold(dynamic)"
+          style="cursor: pointer; text-decoration: none"
+        >
+          收起
+        </a>
+      </div>
+      <el-row>
+        <el-col :span="6"></el-col>
+        <el-col
+          :span="2"
+          style="
+            text-align: center;
+            font-size: small;
+            color: gray;
+            cursor: pointer;
+          "
+          @click="GiveLike(dynamic.parent)"
+        >
+          <svg
+            class="bi bi-heart"
+            width="1em"
+            height="1em"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+            :class="{ 'icon-red': dynamic.parent.isIconClicked }"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"
+            /></svg
+          >&nbsp;点赞
+        </el-col>
+        <el-col :span="8"></el-col>
+        <el-col
+          :span="2"
+          style="
+            text-align: center;
+            font-size: small;
+            color: gray;
+            cursor: pointer;
+          "
+          ><svg
+            class="bi bi-chat-square-dots"
+            width="1em"
+            height="1em"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M14 1H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2.5a2 2 0 0 1 1.6.8L8 14.333 9.9 11.8a2 2 0 0 1 1.6-.8H14a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 0a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2.5a1 1 0 0 1 .8.4l1.9 2.533a1 1 0 0 0 1.6 0l1.9-2.533a1 1 0 0 1 .8-.4H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"
+            />
+            <path
+              d="M5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
+            /></svg
+          >&nbsp;评论</el-col
+        >
+        <el-col :span="6"></el-col>
+      </el-row>
+    </ContentField>
+    <div
+      v-if="loading"
+      style="width: 60%; background-color: #2e2e2e"
+      v-loading="loading"
+    ></div>
+    <ContentField
+      v-if="disabled"
+      style="width: 60%; background-color: #2e2e2e; text-align: center"
+      >到底了~</ContentField
     >
-      收起
-    </a>
-  </ContentField>
+  </div>
 </template>
 
 <script>
 import ContentField from "../../components/ContentField.vue";
 import $ from "jquery";
-import { onMounted, ref } from "vue";
+import MarkdownIt from "markdown-it";
+import { watch, onMounted, ref } from "vue";
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 import { Plus } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 export default {
@@ -164,8 +274,12 @@ export default {
   setup() {
     const textarea = ref("");
     const store = useStore();
+    const router = useRouter();
     const dynamics = ref([]);
     const is_upload_visiable = ref(false);
+    const loading = ref(false);
+    const disabled = ref(false);
+    const is_get_content = ref(false); // 判断前端是否已经渲染完，从而正常获取id
     let current_page = 0;
     const fileList = ref([
       {
@@ -188,6 +302,14 @@ export default {
     const handlePictureCardPreview = (uploadFile) => {
       dialogImageUrl.value = uploadFile.url;
       dialogVisible.value = true;
+    };
+
+    const load = () => {
+      console.log("load");
+      if (!loading.value && !disabled.value) {
+        loading.value = true;
+        pull_dynamics();
+      }
     };
 
     const create_dynamic = (reply_id) => {
@@ -220,7 +342,6 @@ export default {
           Authorization: "Bearer " + store.state.user.token,
         },
         success(resp) {
-          console.log(resp);
           if (resp.result === "success") {
             ElMessage({
               showClose: true,
@@ -228,18 +349,19 @@ export default {
               type: "success",
             });
           }
+          router.go(0);
         },
       });
-      current_page = 1;
-      dynamics.value = [];
-      pull_dynamics();
     };
 
-    // 扩增动态数
-    const add_dynamics = () => {
-      current_page = current_page + 1;
-      pull_dynamics();
-    };
+    // // 扩增动态数
+    // const add_dynamics = () => {
+    //   console.log("adding");
+    //   isLoading.value = true;
+    //   current_page = current_page + 1;
+    //   textarea.value = "";
+    //   pull_dynamics();
+    // };
 
     // 将时间差转化
     const change_date = (current_date) => {
@@ -280,6 +402,7 @@ export default {
     };
 
     const pull_dynamics = () => {
+      current_page += 1;
       console.log("current_page = ", current_page);
       $.ajax({
         url: "http://127.0.0.1:3000/api/dynamic/getlist/",
@@ -292,24 +415,34 @@ export default {
           Authorization: "Bearer " + store.state.user.token,
         },
         success(resp) {
-          console.log(resp);
+          const md = new MarkdownIt();
           if (resp.result === "success") {
             let pastTime = "";
             for (let i = 0; i < resp.dynamics.length; i++) {
               pastTime = change_date(resp.dynamics[i].parent.createtime);
               resp.dynamics[i].parent.pastTime = pastTime;
+              resp.dynamics[i].parent.content = md.render(
+                resp.dynamics[i].parent.content
+              );
+              resp.dynamics[i].parent.centerDialogVisible = false;
+              resp.dynamics[i].parent.isIconClicked = false;
               resp.dynamics[i].is_unfold = true;
               for (let j = 0; j < resp.dynamics[i].children.length; j++) {
                 pastTime = change_date(resp.dynamics[i].children[j].createtime);
+                resp.dynamics[i].children[j].pastTime = pastTime;
+                resp.dynamics[i].parent.children[j].content = md.render(
+                  resp.dynamics[i].parent.children[j].content
+                );
+                resp.dynamics[i].children[j].centerDialogVisible = false;
+                resp.dynamics[i].isIconClicked = false;
               }
             }
             dynamics.value = dynamics.value.concat(resp.dynamics);
-            console.log(dynamics.value);
-            let parent_contents =
-              document.getElementsByClassName("parent-content");
-
-            for (let i = 0; i < parent_contents.length; i++)
-              parent_contents[i].id = "parent-content" + (i + 1);
+            if (resp.parentCnt / 5 <= current_page) {
+              disabled.value = true;
+            }
+            is_get_content.value = false;
+            loading.value = false;
           }
         },
         error(resp) {
@@ -318,18 +451,100 @@ export default {
       });
     };
 
+    const deleteDynamic = (dynamicId) => {
+      $.ajax({
+        url: "http://127.0.0.1:3000/api/dynamic/delete/",
+        type: "get",
+        data: {
+          dynamicId,
+        },
+        headers: {
+          Authorization: "Bearer " + store.state.user.token,
+        },
+        success(resp) {
+          if (resp.result === "success") {
+            ElMessage({
+              showClose: true,
+              message: "刪除成功！",
+              type: "success",
+            });
+            current_page = 1;
+            dynamics.value = [];
+            pull_dynamics();
+          }
+        },
+      });
+    };
+
     const get_parentContent = (id) => {
+      if (!is_get_content.value) {
+        is_get_content.value = true;
+      }
       return "parent-content" + id;
     };
 
+    // 展开与收起
     const change_is_unfold = (dynamic) => {
-      console.log(dynamic);
-      if (dynamic.is_unfold) dynamic.is_unfold = false;
-      else dynamic.is_unfold = true;
+      let div_content = document.getElementById(
+        "parent-content" + dynamic.parent.id
+      );
+      if (dynamic.is_unfold) {
+        dynamic.is_unfold = false;
+        div_content.style.maxHeight = div_content.scrollHeight + "px"; // 展开到文字高度
+      } else {
+        dynamic.is_unfold = true;
+        div_content.style.maxHeight = "200px";
+      }
+    };
+
+    pull_dynamics();
+
+    const juage_is_overflow = () => {
+      let parent_contents = document.getElementsByClassName("parent-content");
+      console.log("length = ", parent_contents.length);
+      for (let i = 0; i < parent_contents.length; i++) {
+        if (parent_contents[i]) {
+          if (parent_contents[i].scrollHeight > 200) {
+            dynamics.value[i].have_fold_button = true;
+          } else {
+            dynamics.value[i].have_fold_button = false;
+          }
+        }
+      }
+    };
+
+    // 点赞或者取消点赞, 待完成
+    // const post_like = () => {
+    //   $.ajax({
+    //     url: "http://127.0.0.1:3000",
+    //     type: "get",
+    //     data: {
+    //       page: current_page,
+    //       userId: "-1",
+    //     },
+    //     headers: {
+    //       Authorization: "Bearer " + store.state.user.token,
+    //     },
+    //     success(resp) {},
+    //     error(resp) {
+    //       console.log(resp);
+    //     },
+    //   });
+    // };
+
+    const GiveLike = (dynamic) => {
+      if (dynamic.isIconClicked) {
+        dynamic.isIconClicked = false;
+      } else {
+        dynamic.isIconClicked = true;
+      }
     };
 
     onMounted(() => {
-      pull_dynamics();
+      watch(is_get_content, () => {
+        console.log("judge");
+        juage_is_overflow();
+      });
     });
 
     return {
@@ -340,20 +555,28 @@ export default {
       fileList,
       dialogImageUrl,
       dialogVisible,
+      loading,
+      disabled,
       is_upload_visiable,
       handleRemove,
       handlePictureCardPreview,
       create_dynamic,
       pull_dynamics,
-      add_dynamics,
+      // add_dynamics,
       change_is_unfold,
       get_parentContent,
+      deleteDynamic,
+      load,
+      GiveLike,
     };
   },
 };
 </script>
 
 <style scoped>
+.icon-red {
+  color: red;
+}
 .parent-unfold {
   color: lightblue;
   font-size: small;
@@ -367,10 +590,9 @@ export default {
 }
 .dynamic-content {
   color: white;
-  width: 60%;
   margin: auto;
-  overflow: auto;
   list-style: none;
+  overflow: visible;
 }
 .demo-tabs > .el-tabs__content {
   padding: 32px;
