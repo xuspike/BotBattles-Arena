@@ -40,7 +40,7 @@ public class CreateDynamicServiceImpl implements CreateDynamicService {
             }
         }
         if(reply_dynamic != null) {
-            replyName = reply_dynamic.getReplyName();
+            replyName = reply_dynamic.getUsername();
         }
 
         Dynamic dynamic = new Dynamic(null, userId, user.getUsername(), user.getPhoto(), parentId, replyId, replyName, content, photos, 0, new Date());

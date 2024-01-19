@@ -174,7 +174,7 @@
           ></pre>
         </el-col>
       </el-row>
-      <div v-if="dynamic.have_fold_button">
+      <div v-if="judge_is_overflow(dynamic.parent.id)">
         <a
           class="parent-unfold"
           v-if="dynamic.is_unfold"
@@ -281,6 +281,15 @@
             <el-col :span="15">
               <div style="margin-left: 1vw; font-size: 12px">
                 {{ child.username }}
+                &nbsp;<a
+                  v-if="child.replyId != dynamic.parent.id"
+                  style="color: #03658c; text-decoration: none"
+                  href="javascript:void(0)"
+                  >回复</a
+                >
+                <span v-if="child.replyId != dynamic.parent.id"
+                  >&nbsp;&nbsp;{{ child.replyName }}</span
+                >
               </div>
               <div style="margin-left: 1vw; color: gray; font-size: 12px">
                 {{ child.pastTime }}
@@ -362,7 +371,7 @@
               <el-col :span="2"></el-col>
               <el-col :span="19">
                 <el-input
-                  v-model="textarea"
+                  v-model="child.textarea"
                   :autosize="{ minRows: 2, maxRows: 3 }"
                   type="textarea"
                   placeholder="畅所欲言吧！"
@@ -422,9 +431,9 @@
 import ContentField from "../../components/ContentField.vue";
 import $ from "jquery";
 import MarkdownIt from "markdown-it";
-import { watch, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+//import { useRouter } from "vue-router";
 import { Plus } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 export default {
@@ -435,7 +444,7 @@ export default {
   setup() {
     const textarea = ref("");
     const store = useStore();
-    const router = useRouter();
+    //const router = useRouter();
     const dynamics = ref([]);
     const is_upload_visiable = ref(false);
     const loading = ref(false);
@@ -443,6 +452,9 @@ export default {
     const is_get_content = ref(false); // 判断前端是否已经渲染完，从而正常获取id
     let current_page = 0;
     let is_liked = [];
+
+    // 用来存储每个dynamicId在dynamics中的位置
+    let hashmap = new Map();
     const fileList = ref([
       {
         name: "food.jpeg",
@@ -514,7 +526,10 @@ export default {
               type: "success",
             });
           }
-          router.go(0);
+          current_page = 0;
+          dynamics.value = [];
+          pull_dynamics();
+          // router.go(0);
         },
       });
     };
@@ -608,6 +623,12 @@ export default {
                   resp.dynamics[i].children[j].isIconClicked = true;
               }
             }
+            for (let j = 0; j < resp.dynamics.length; j++) {
+              hashmap.set(
+                resp.dynamics[j].parent.id,
+                j + dynamics.value.length
+              );
+            }
             dynamics.value = dynamics.value.concat(resp.dynamics);
             if (resp.parentCnt / 5 <= current_page) {
               disabled.value = true;
@@ -648,9 +669,6 @@ export default {
     };
 
     const get_parentContent = (id) => {
-      if (!is_get_content.value) {
-        is_get_content.value = true;
-      }
       return "parent-content" + id;
     };
 
@@ -668,18 +686,30 @@ export default {
       }
     };
 
-    const juage_is_overflow = () => {
-      let parent_contents = document.getElementsByClassName("parent-content");
-      console.log("count = ", parent_contents.length);
-      for (let i = 0; i < parent_contents.length; i++) {
-        if (parent_contents[i]) {
-          if (parent_contents[i].scrollHeight > 200) {
-            dynamics.value[i].have_fold_button = true;
-          } else {
-            dynamics.value[i].have_fold_button = false;
-          }
+    const judge_is_overflow = (dynamicId) => {
+      console.log(dynamicId);
+      let parent_content = document.getElementById(
+        "parent-content" + dynamicId
+      );
+      console.log(parent_content);
+      if (parent_content) {
+        if (parent_content.scrollHeight > 200) {
+          return true;
+        } else {
+          return false;
         }
       }
+      // let parent_contents = document.getElementsByClassName("parent-content");
+      // console.log("count = ", parent_contents.length);
+      // for (let i = 0; i < parent_contents.length; i++) {
+      //   if (parent_contents[i]) {
+      //     if (parent_contents[i].scrollHeight > 200) {
+      //       dynamics.value[i].have_fold_button = true;
+      //     } else {
+      //       dynamics.value[i].have_fold_button = false;
+      //     }
+      //   }
+      // }
     };
 
     // 点赞或者取消点赞, 待完成
@@ -762,11 +792,10 @@ export default {
     };
 
     onMounted(() => {
-      watch(is_get_content, () => {
-        console.log(is_get_content.value, dynamics.value);
-        juage_is_overflow();
-      });
-
+      // watch(is_get_content, () => {
+      //   console.log(is_get_content.value, dynamics.value);
+      //   judge_is_overflow();
+      // });
       getLocalStorage();
     });
 
@@ -793,6 +822,7 @@ export default {
       GiveLike,
       isDynamicLiked,
       openPostContent,
+      judge_is_overflow,
     };
   },
 };
