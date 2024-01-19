@@ -23,8 +23,8 @@ public class GetDynamicListServiceImpl implements GetDynamicListService {
         IPage<Dynamic> dynamicPage = new Page<>(page, 5);
 
         QueryWrapper<Dynamic> queryWrapper = new QueryWrapper<>();
-        if(userId == -1) queryWrapper.orderByDesc("id");
-        else queryWrapper.eq("user_id", userId).orderByDesc("id");
+        if(userId == -1) queryWrapper.eq("parent_id", -1).orderByDesc("id");
+        else queryWrapper.eq("parent_id", -1).eq("user_id", userId).orderByDesc("id");
         List<Dynamic> first_dynamics = dynamicMapper.selectPage(dynamicPage, queryWrapper).getRecords();
 
         List<JSONObject> items = new LinkedList<>();
@@ -37,6 +37,7 @@ public class GetDynamicListServiceImpl implements GetDynamicListService {
             JSONObject item = new JSONObject();
             item.put("parent", dynamic);
             item.put("children", second_Dynamics);
+            item.put("childrenCnt", second_Dynamics.size());
 
             items.add(item);
         }
