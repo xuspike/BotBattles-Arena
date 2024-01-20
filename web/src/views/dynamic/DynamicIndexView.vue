@@ -162,7 +162,7 @@
         <el-col :span="22">
           <pre
             class="parent-content"
-            :id="get_parentContent(dynamic.parent.id)"
+            :id="'parent-content' + dynamic.parent.id"
             v-html="dynamic.parent.content"
             style="
               line-height: 1;

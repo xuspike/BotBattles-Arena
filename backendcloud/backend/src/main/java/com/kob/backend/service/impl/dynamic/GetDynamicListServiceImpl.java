@@ -31,7 +31,7 @@ public class GetDynamicListServiceImpl implements GetDynamicListService {
         for(Dynamic dynamic : first_dynamics) {
             int first_dynamicId = dynamic.getId();
             queryWrapper = new QueryWrapper<>();
-            queryWrapper.orderByDesc("id").eq("parent_id", first_dynamicId);
+            queryWrapper.orderByAsc("id").eq("parent_id", first_dynamicId);
             List<Dynamic> second_Dynamics = dynamicMapper.selectList(queryWrapper);
 
             JSONObject item = new JSONObject();

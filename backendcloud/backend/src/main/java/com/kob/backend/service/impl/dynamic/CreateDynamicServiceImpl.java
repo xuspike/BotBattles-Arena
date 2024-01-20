@@ -1,7 +1,9 @@
 package com.kob.backend.service.impl.dynamic;
 
 import com.kob.backend.mapper.DynamicMapper;
+import com.kob.backend.mapper.DynamicNoticeMapper;
 import com.kob.backend.pojo.Dynamic;
+import com.kob.backend.pojo.DynamicNotice;
 import com.kob.backend.pojo.User;
 import com.kob.backend.service.dynamic.CreateDynamicService;
 import com.kob.backend.service.impl.utils.UserDetailsImpl;
@@ -18,6 +20,9 @@ import java.util.Map;
 public class CreateDynamicServiceImpl implements CreateDynamicService {
     @Autowired
     private DynamicMapper dynamicMapper;
+
+    @Autowired
+    private DynamicNoticeMapper dynamicNoticeMapper;
 
     @Override
     public Map<String, String> create(Integer userId, Integer replyId, String content, String photos) {
@@ -38,6 +43,7 @@ public class CreateDynamicServiceImpl implements CreateDynamicService {
             if(reply_dynamic.getParentId() != -1) {
                 parentId = reply_dynamic.getParentId();
             }
+
         }
         if(reply_dynamic != null) {
             replyName = reply_dynamic.getUsername();
@@ -45,6 +51,34 @@ public class CreateDynamicServiceImpl implements CreateDynamicService {
 
         Dynamic dynamic = new Dynamic(null, userId, user.getUsername(), user.getPhoto(), parentId, replyId, replyName, content, photos, 0, new Date());
         dynamicMapper.insert(dynamic);
+
+        // 发送通知
+        if(replyId != -1) {
+            // 给被评论人发通知
+            dynamicNoticeMapper.insert(new DynamicNotice(
+                    null,
+                    replyId,
+                    userId,
+                    dynamic.getId(),
+                    reply_dynamic.getId(),
+                    0,
+                    new Date()
+            ));
+
+            // 给父评论发通知
+            if(replyId != parentId && parentId != -1) {
+                Dynamic parent_dynamic = dynamicMapper.selectById(parentId);
+                dynamicNoticeMapper.insert(new DynamicNotice(
+                        null,
+                        parent_dynamic.getUserId(),
+                        userId,
+                        dynamic.getId(),
+                        parentId,
+                        0,
+                        new Date()
+                ));
+            }
+        }
 
         resp.put("result", "success");
 
