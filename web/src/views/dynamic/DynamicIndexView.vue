@@ -167,14 +167,19 @@
             style="
               line-height: 1;
               transition: max-height 0.5s ease;
-              max-height: 200px;
+              max-height: 100px;
               overflow: hidden;
               white-space: pre-line;
             "
           ></pre>
         </el-col>
       </el-row>
-      <div v-if="judge_is_overflow(dynamic.parent.id)">
+      <div
+        v-if="
+          dynamic.parent.content.length > 100 &&
+          judge_is_overflow(dynamic.parent.id)
+        "
+      >
         <a
           class="parent-unfold"
           v-if="dynamic.is_unfold"
@@ -455,6 +460,7 @@ export default {
 
     // 用来存储每个dynamicId在dynamics中的位置
     let hashmap = new Map();
+    let status = new Map();
     const fileList = ref([
       {
         name: "food.jpeg",
@@ -489,7 +495,7 @@ export default {
     const create_dynamic = (dynamic, reply_id) => {
       let content = "";
       if (dynamic != null) content = dynamic.textarea;
-      else content = textarea;
+      else content = textarea.value;
       if (content === "") {
         ElMessage({
           showClose: true,
@@ -669,6 +675,7 @@ export default {
     };
 
     const get_parentContent = (id) => {
+      status.set(id, true);
       return "parent-content" + id;
     };
 
@@ -682,34 +689,22 @@ export default {
         div_content.style.maxHeight = div_content.scrollHeight + "px"; // 展开到文字高度
       } else {
         dynamic.is_unfold = true;
-        div_content.style.maxHeight = "200px";
+        div_content.style.maxHeight = "100px";
       }
     };
 
     const judge_is_overflow = (dynamicId) => {
-      console.log(dynamicId);
       let parent_content = document.getElementById(
         "parent-content" + dynamicId
       );
-      console.log(parent_content);
       if (parent_content) {
-        if (parent_content.scrollHeight > 200) {
+        if (parent_content.scrollHeight > 100) {
           return true;
         } else {
           return false;
         }
       }
-      // let parent_contents = document.getElementsByClassName("parent-content");
-      // console.log("count = ", parent_contents.length);
-      // for (let i = 0; i < parent_contents.length; i++) {
-      //   if (parent_contents[i]) {
-      //     if (parent_contents[i].scrollHeight > 200) {
-      //       dynamics.value[i].have_fold_button = true;
-      //     } else {
-      //       dynamics.value[i].have_fold_button = false;
-      //     }
-      //   }
-      // }
+      return true;
     };
 
     // 点赞或者取消点赞, 待完成
@@ -792,10 +787,6 @@ export default {
     };
 
     onMounted(() => {
-      // watch(is_get_content, () => {
-      //   console.log(is_get_content.value, dynamics.value);
-      //   judge_is_overflow();
-      // });
       getLocalStorage();
     });
 
