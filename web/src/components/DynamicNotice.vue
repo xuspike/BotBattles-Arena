@@ -201,6 +201,6 @@ export default {
 }
 
 .unread {
-  background-color: gray !important;
+  border: 1px solid white !important;
 }
 </style>

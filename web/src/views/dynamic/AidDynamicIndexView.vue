@@ -229,7 +229,7 @@ import { useRoute } from "vue-router";
 import ContentField from "../../components/ContentField.vue";
 import $ from "jquery";
 import MarkdownIt from "markdown-it";
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { ElMessage } from "element-plus";
 import { useStore } from "vuex";
 export default {
