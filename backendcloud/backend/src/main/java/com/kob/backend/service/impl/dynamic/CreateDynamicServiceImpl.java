@@ -57,7 +57,7 @@ public class CreateDynamicServiceImpl implements CreateDynamicService {
             // 给被评论人发通知
             dynamicNoticeMapper.insert(new DynamicNotice(
                     null,
-                    replyId,
+                    reply_dynamic.getUserId(),
                     userId,
                     dynamic.getId(),
                     reply_dynamic.getId(),

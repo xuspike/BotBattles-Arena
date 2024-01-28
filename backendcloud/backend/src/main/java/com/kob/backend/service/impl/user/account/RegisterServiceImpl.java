@@ -71,7 +71,7 @@ public class RegisterServiceImpl implements RegisterService {
         String encodePassword = passwordEncoder.encode(password);
         String photo = "https://cdn.acwing.com/media/user/profile/photo/135321_lg_d068f5378c.jpg";
         // id已经配置过自增，会自动生成
-        User user = new User(null, username, encodePassword, photo, 1500, null);
+        User user = new User(null, username, encodePassword, photo, 1500, null, null);
         userMapper.insert(user);
 
         map.put("error_message", "success");

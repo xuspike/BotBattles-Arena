@@ -1,10 +1,7 @@
 package com.kob.backend.controller.dynamic;
 
 import com.alibaba.fastjson.JSONObject;
-import com.kob.backend.service.dynamic.CreateDynamicService;
-import com.kob.backend.service.dynamic.DeleteDynamicService;
-import com.kob.backend.service.dynamic.GetDynamicListService;
-import com.kob.backend.service.dynamic.GiveALikeService;
+import com.kob.backend.service.dynamic.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +20,8 @@ public class DynamicController {
     private DeleteDynamicService deleteDynamicService;
     @Autowired
     private GiveALikeService giveALikeService;
+    @Autowired
+    private GetAidDynamicService getAidDynamicService;
 
     @PostMapping("/api/dynamic/create/")
     public Map<String, String> create(@RequestParam Map<String, String> data) {
@@ -55,5 +54,12 @@ public class DynamicController {
         Integer num = Integer.parseInt(data.get("num"));
 
         return giveALikeService.giveLike(dynamicId, num);
+    }
+
+    @GetMapping("/api/dynamic/getAid/")
+    public JSONObject getAid(@RequestParam Map<String, String> data) {
+        Integer dynamicId = Integer.valueOf(data.get("dynamicId"));
+
+        return getAidDynamicService.getAid(dynamicId);
     }
 }

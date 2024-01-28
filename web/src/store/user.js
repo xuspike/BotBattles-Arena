@@ -4,6 +4,8 @@ export default {
         id: "",
         username: "",
         photo: "",
+        resume: "这个人没有留下任何内容~",
+        noticeCount: 0,
         token: "",
         is_login: false,
     },
@@ -14,6 +16,8 @@ export default {
             state.id = user.id;
             state.username = user.username;
             state.photo = user.photo;
+            if(user.resume != null) state.resume = user.resume;
+            state.noticeCount = user.noticeCount;
             state.is_login = user.is_login;
         },
         updateToken(state, token) {

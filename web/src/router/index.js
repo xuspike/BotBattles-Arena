@@ -8,7 +8,9 @@ import UserBotIndexView from '../views/user/bot/UserBotIndexView';
 import NotFound from '../views/error/NotFound';
 import UserAccountLoginView from '../views/user/account/UserAccountLoginView';
 import UserAccountRegisterView from '../views/user/account/UserAccountRegisterView';
+import AidDynamicIndexView from '../views/dynamic/AidDynamicIndexView';
 import UserAccountAcwingWebReceiveCode from '../views/user/account/UserAccountAcwingWebReceiveCode';
+import UserNoticeView from "../views/user/notice/UserNoticeView";
 import HomeView from '../views/home/HomeView';
 import store from '../store/index';
 
@@ -57,6 +59,22 @@ const routes = [
     path: '/dynamic/',
     component: DynamicIndexView,
     name: "dynamic_index",
+    meta: {
+      requestAuth: true,
+    }
+  },
+  {
+    path: '/dynmaic/aid/:dynamicId/',
+    component: AidDynamicIndexView,
+    name: "aid_dynamic",
+    meta: {
+      requestAuth: true,
+    }
+  },
+  {
+    path: "/user/notice/",
+    name: "user_notice",
+    component: UserNoticeView,
     meta: {
       requestAuth: true,
     }

@@ -53,6 +53,18 @@
             </router-link>
           </li>
         </ul>
+        <div class="notice" style="color: white; text-align: right">
+          <el-badge
+            @click="GoToNoticeIndex"
+            :value="$store.state.user.noticeCount"
+            :max="99"
+            class="item"
+            style="cursor: pointer"
+          >
+            <el-icon><Bell /></el-icon>
+          </el-badge>
+        </div>
+
         <ul class="navbar-nav" v-if="$store.state.user.is_login">
           <li class="nav-item dropdown">
             <a
@@ -112,7 +124,7 @@
 </template>
 
 <script>
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { computed } from "vue";
 import { useStore } from "vuex";
 
@@ -120,14 +132,23 @@ export default {
   setup() {
     const store = useStore();
     const route = useRoute();
+    const router = useRouter();
     let route_name = computed(() => route.name);
 
     const logout = () => {
       store.dispatch("logout");
     };
+
+    const GoToNoticeIndex = () => {
+      router.push({
+        name: "user_notice",
+      });
+    };
+
     return {
       route_name,
       logout,
+      GoToNoticeIndex,
     };
   },
 };
@@ -136,5 +157,18 @@ export default {
 <style scoped>
 .avatar {
   border-radius: 50%;
+}
+
+::v-deep .container .el-icon {
+  margin: auto;
+}
+
+.item {
+  margin-top: 10px;
+  margin-right: 40px;
+}
+
+.el-dropdown {
+  margin-top: 1.1rem;
 }
 </style>

@@ -1,6 +1,5 @@
 package com.kob.backend.controller.notice;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.kob.backend.service.notice.ChangeDynamicNoticeStatusService;
 import com.kob.backend.service.notice.GetDynamicNoticeListService;
@@ -16,21 +15,21 @@ import java.util.Map;
 public class DynamicNoticeController {
     @Autowired
     private ChangeDynamicNoticeStatusService changeDynamicNoticeStatusService;
-
     @Autowired
     private GetDynamicNoticeListService getDynamicNoticeListService;
     @PostMapping("/api/notice/dynamic/status/change/")
     public Map<String, String> changeStatus(@RequestParam Map<String, String> data) {
-        String noticeIds = data.get("noticeIds");
+        Integer noticeId = Integer.valueOf(data.get("noticeId"));
 
-        return changeDynamicNoticeStatusService.changeStatus(noticeIds);
+        return changeDynamicNoticeStatusService.changeStatus(noticeId);
     }
 
     @GetMapping("/api/notice/dynamic/getlist/")
     public JSONObject getList(@RequestParam Map<String, String> data) {
         Integer userId = Integer.parseInt(data.get("userId"));
-        Integer status = Integer.parseInt(data.get("status"));
+        Integer page = Integer.parseInt(data.get("page"));
 
-        return getDynamicNoticeListService.getList(userId, status);
+        return getDynamicNoticeListService.getList(userId, page);
     }
+
 }

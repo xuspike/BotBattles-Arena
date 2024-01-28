@@ -880,12 +880,12 @@ export default {
 
 ::v-deep .tab-container .el-tabs {
   background-color: #2e2e2e;
-  border-color: #6b778c !important;
+  border: none !important;
 }
 
 ::v-deep .tab-container .el-tabs__header {
   background-color: #2e2e2e !important;
-  border-color: #6b778c !important;
+  border-bottom: 1px solid grey !important;
 }
 
 ::v-deep .tab-container .el-textarea__inner {
@@ -895,9 +895,14 @@ export default {
 
 ::v-deep .tab-container .el-tabs__item {
   background-color: #2e2e2e !important;
-  border-color: #6b778c !important;
+  border-bottom: 1px solid grey !important;
 }
 
+::v-deep .el-tabs--border-card > .el-tabs__header .el-tabs__item.is-active {
+  background-color: darkgray !important;
+  color: black !important;
+  border-bottom: 1px solid grey !important;
+}
 ::v-deep .tab-container .el-tabs__nav-scroll {
   border-color: #6b778c !important;
 }
