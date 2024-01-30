@@ -95,7 +95,7 @@
   />
 </template>
 
-<script>
+<script scoped>
 import { onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
 import { ElMessage } from "element-plus";
@@ -152,6 +152,8 @@ export default {
                 message: "已全部已读~",
                 type: "success",
               });
+              currentPage.value = 1;
+              pull_notices();
             } else {
               if (status == 0) store.state.user.noticeCount--;
             }
