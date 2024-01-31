@@ -2,6 +2,7 @@ package com.kob.backend.service.impl.dynamic;
 
 import com.kob.backend.mapper.DynamicMapper;
 import com.kob.backend.mapper.DynamicNoticeMapper;
+import com.kob.backend.mapper.UserMapper;
 import com.kob.backend.pojo.Dynamic;
 import com.kob.backend.pojo.DynamicNotice;
 import com.kob.backend.pojo.User;
@@ -22,6 +23,8 @@ public class GiveALikeServiceImpl implements GiveALikeService {
     private DynamicMapper dynamicMapper;
     @Autowired
     private DynamicNoticeMapper dynamicNoticeMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public Map<String, String> giveLike(Integer dynamicId, Integer num) {
@@ -68,6 +71,21 @@ public class GiveALikeServiceImpl implements GiveALikeService {
                     new Date()
             ));
         }
+
+        userMapper.updateById(
+                new User(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getPassword(),
+                        user.getPhoto(),
+                        user.getRating(),
+                        user.getOpenid(),
+                        user.getResume(),
+                        user.getDynamicCnt(),
+                        user.getFriendCnt(),
+                        user.getLikeCnt() + num
+                )
+        );
 
         dynamicMapper.updateById(new_dynamic);
         resp.put("result", "success");

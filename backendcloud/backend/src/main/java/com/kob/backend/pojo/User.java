@@ -18,4 +18,7 @@ public class User {
     private Integer rating;
     private String openid;
     private String resume;
+    private Integer dynamicCnt;
+    private Integer friendCnt;
+    private Integer likeCnt;
 }

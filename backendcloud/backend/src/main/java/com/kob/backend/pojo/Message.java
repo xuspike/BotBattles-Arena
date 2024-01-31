@@ -10,18 +10,15 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class Friendships {
+@AllArgsConstructor
+public class Message {
     @TableId(type = IdType.AUTO) // 按id自增
     private Integer id;
-    private Integer user1Id;
-    private Integer user2Id;
-    private Integer lastMsgId;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai") // 定义日期格式
-    private Date lastMsgTime;
-    private Integer msgCnt1; // 用户1未读消息数
-    private Integer msgCnt2; // 用户2未读消息数
+    private Integer friendshipId;
+    private Integer senderId;
+    private Integer receiverId;
+    private String content;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai") // 定义日期格式
     private Date createtime;
 }

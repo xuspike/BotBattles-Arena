@@ -35,6 +35,10 @@ public class CreateFriendshipsServiceImpl implements CreateFriendshipsService {
                 null,
                 user1Id,
                 user2Id,
+                -1,
+                null,
+                0,
+                0,
                 new Date()
         ));
 

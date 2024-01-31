@@ -2,6 +2,7 @@ package com.kob.backend.service.impl.dynamic;
 
 import com.kob.backend.mapper.DynamicMapper;
 import com.kob.backend.mapper.DynamicNoticeMapper;
+import com.kob.backend.mapper.UserMapper;
 import com.kob.backend.pojo.Dynamic;
 import com.kob.backend.pojo.DynamicNotice;
 import com.kob.backend.pojo.User;
@@ -23,6 +24,9 @@ public class CreateDynamicServiceImpl implements CreateDynamicService {
 
     @Autowired
     private DynamicNoticeMapper dynamicNoticeMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public Map<String, String> create(Integer userId, Integer replyId, String content, String photos) {
@@ -79,6 +83,21 @@ public class CreateDynamicServiceImpl implements CreateDynamicService {
                 ));
             }
         }
+
+        userMapper.updateById(
+                new User(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getPassword(),
+                        user.getPhoto(),
+                        user.getRating(),
+                        user.getOpenid(),
+                        user.getResume(),
+                        user.getDynamicCnt() + 1,
+                        user.getFriendCnt(),
+                        user.getLikeCnt()
+                )
+        );
 
         resp.put("result", "success");
 
