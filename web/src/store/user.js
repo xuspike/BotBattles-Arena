@@ -66,7 +66,6 @@ export default {
             },
             success(resp) {
                 if(resp.error_message === "success") {
-                    console.log(resp);
                     context.commit("updateUser", {
                         ...resp,
                         is_login: true,

@@ -2,191 +2,139 @@
   <div class="container">
     <div class="row">
       <section class="discussions">
-        <div class="discussion search">
-          <div class="searchbar">
-            <el-icon><Search /></el-icon>
-            <input type="text" placeholder="Search..." />
+        <el-scrollbar height="400px">
+          <div class="discussion search">
+            <div class="searchbar">
+              <el-icon><Search /></el-icon>
+              <input type="text" placeholder="Search..." />
+            </div>
+            <el-icon
+              style="
+                font-size: 30px;
+                margin-left: 1vw;
+                color: lightblue;
+                cursor: pointer;
+              "
+              @click="addFriendVisable = true"
+              ><CirclePlus
+            /></el-icon>
           </div>
-          <el-icon
-            style="
-              font-size: 30px;
-              margin-left: 1vw;
-              color: lightblue;
-              cursor: pointer;
-            "
-            @click="addFriendVisable = true"
-            ><CirclePlus
-          /></el-icon>
-        </div>
-        <el-dialog v-model="addFriendVisable" title="添加好友" width="40%">
-          <div
-            class="makeFriend"
-            v-infinite-scroll="load_searchUsers"
-            :infinite-scroll-disabled="search_disabled"
-            infinite-scroll-distance="1"
-          >
-            <el-row>
-              <el-col :span="20"
-                ><el-input
-                  style="margin-left: 1vw"
-                  v-model="search_username"
-                  placeholder="请输入你要搜寻的用户名"
-              /></el-col>
-              <el-col :span="4">
-                <el-button
-                  @click="reset_userSearch"
-                  style="margin-left: 20px"
-                  :icon="Search"
-                  circle
-                />
-              </el-col>
-            </el-row>
-            <div class="userMessage" v-for="user in users" :key="user.id">
+          <el-dialog v-model="addFriendVisable" title="添加好友" width="40%">
+            <div
+              class="makeFriend"
+              v-infinite-scroll="load_searchUsers"
+              :infinite-scroll-disabled="search_disabled"
+              infinite-scroll-distance="1"
+            >
               <el-row>
-                <el-col :span="6">
-                  <el-avatar
-                    style="margin-left: 5px"
-                    :src="user.photo"
-                    :size="30"
-                  ></el-avatar>
-                </el-col>
-                <el-col :span="1"></el-col>
-                <el-col :span="13">
-                  <div style="color: gray; font-size: 9pt">
-                    {{ user.username }}
-                  </div>
-                  <el-tooltip
-                    v-if="user.resume != null"
-                    :content="user.resume"
-                    placement="bottom"
-                    effect="light"
-                  >
-                    <div class="user-resume" title="user.resume">
-                      {{ user.resume }}
-                    </div>
-                  </el-tooltip>
-                  <el-tooltip
-                    v-else
-                    content="这个人没有留下任何内容"
-                    placement="bottom"
-                    effect="light"
-                  >
-                    <div class="user-resume">这个人没有留下任何内容~</div>
-                  </el-tooltip>
-                </el-col>
-                <el-col
-                  :span="4"
-                  style="
-                    font-size: 25px;
-                    display: grid;
-                    place-items: center; /* 水平垂直居中 */
-                  "
-                >
-                  <el-icon
-                    v-if="user.isSended == false && !friendSet.has(user.id)"
-                    style="cursor: pointer"
-                    @click="sendFriendNotice(user)"
-                    ><CirclePlus
-                  /></el-icon>
-                  <el-icon
-                    v-else-if="user.isSended == true && !friendSet.has(user.id)"
-                    ><CircleCheck
-                  /></el-icon>
+                <el-col :span="20"
+                  ><el-input
+                    style="margin-left: 1vw"
+                    v-model="search_username"
+                    placeholder="请输入你要搜寻的用户名"
+                /></el-col>
+                <el-col :span="4">
+                  <el-button
+                    @click="reset_userSearch"
+                    style="margin-left: 20px"
+                    :icon="Search"
+                    circle
+                  />
                 </el-col>
               </el-row>
+              <div class="userMessage" v-for="user in users" :key="user.id">
+                <el-row>
+                  <el-col :span="6">
+                    <el-avatar
+                      style="margin-left: 5px"
+                      :src="user.photo"
+                      :size="30"
+                    ></el-avatar>
+                  </el-col>
+                  <el-col :span="1"></el-col>
+                  <el-col :span="13">
+                    <div style="color: gray; font-size: 9pt">
+                      {{ user.username }}
+                    </div>
+                    <el-tooltip
+                      v-if="user.resume != null"
+                      :content="user.resume"
+                      placement="bottom"
+                      effect="light"
+                    >
+                      <div class="user-resume" title="user.resume">
+                        {{ user.resume }}
+                      </div>
+                    </el-tooltip>
+                    <el-tooltip
+                      v-else
+                      content="这个人没有留下任何内容"
+                      placement="bottom"
+                      effect="light"
+                    >
+                      <div class="user-resume">这个人没有留下任何内容~</div>
+                    </el-tooltip>
+                  </el-col>
+                  <el-col
+                    :span="4"
+                    style="
+                      font-size: 25px;
+                      display: grid;
+                      place-items: center; /* 水平垂直居中 */
+                    "
+                  >
+                    <el-icon
+                      v-if="user.isSended == false && !friendSet.has(user.id)"
+                      style="cursor: pointer"
+                      @click="sendFriendNotice(user)"
+                      ><CirclePlus
+                    /></el-icon>
+                    <el-icon
+                      v-else-if="
+                        user.isSended == true && !friendSet.has(user.id)
+                      "
+                      ><CircleCheck
+                    /></el-icon>
+                  </el-col>
+                </el-row>
+              </div>
+              <div v-loading="search_loading"></div>
             </div>
-            <div v-loading="search_loading"></div>
-          </div>
-        </el-dialog>
-        <div class="discussion message-active">
-          <div
-            class="photo"
-            style="
-              background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);
-            "
-          >
-            <div class="online"></div>
-          </div>
-          <div class="desc-contact">
-            <p class="name">Megan Leib</p>
-            <p class="message">9 pm at the bar if possible 😳</p>
-          </div>
-          <div class="timer">12 sec</div>
-        </div>
+          </el-dialog>
 
-        <div class="discussion">
-          <div
-            class="photo"
-            style="
-              background-image: url(https://i.pinimg.com/originals/a9/26/52/a926525d966c9479c18d3b4f8e64b434.jpg);
-            "
-          >
-            <div class="online"></div>
+          <!-- class = "message-active"表示选中 -->
+          <div v-for="friend in friends" class="discussion">
+            <div
+              class="photo"
+              :style="'background-image: url(' + friend.friend.photo + ')'"
+            ></div>
+            <div class="desc-contact">
+              <p class="name">{{ friend.friend.username }}</p>
+              <p class="message" v-if="friend.friendship.lastMsgId != -1">
+                {{ friend.lastMessage.content }}
+              </p>
+              <p class="message" v-else>和新朋友开始聊天吧~</p>
+            </div>
+            <div class="timer" v-if="friend.friendship.lastMsgId != -1">
+              {{ friend.lastMessage.createtime }}
+            </div>
           </div>
-          <div class="desc-contact">
-            <p class="name">Dave Corlew</p>
-            <p class="message">Let's meet for a coffee or something today ?</p>
+          <div class="discussion message-active">
+            <div
+              class="photo"
+              style="
+                background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);
+              "
+            >
+              <div class="online"></div>
+            </div>
+            <div class="desc-contact">
+              <p class="name">Megan Leib</p>
+              <p class="message">9 pm at the bar if possible 😳</p>
+            </div>
+            <div class="timer">12 sec</div>
           </div>
-          <div class="timer">3 min</div>
-        </div>
-
-        <div class="discussion">
-          <div
-            class="photo"
-            style="
-              background-image: url(https://images.unsplash.com/photo-1497551060073-4c5ab6435f12?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=667&q=80);
-            "
-          ></div>
-          <div class="desc-contact">
-            <p class="name">Jerome Seiber</p>
-            <p class="message">I've sent you the annual report</p>
-          </div>
-          <div class="timer">42 min</div>
-        </div>
-
-        <div class="discussion">
-          <div
-            class="photo"
-            style="
-              background-image: url(https://card.thomasdaubenton.com/img/photo.jpg);
-            "
-          >
-            <div class="online"></div>
-          </div>
-          <div class="desc-contact">
-            <p class="name">Thomas Dbtn</p>
-            <p class="message">See you tomorrow ! 🙂</p>
-          </div>
-          <div class="timer">2 hour</div>
-        </div>
-
-        <div class="discussion">
-          <div
-            class="photo"
-            style="
-              background-image: url(https://images.unsplash.com/photo-1553514029-1318c9127859?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=700&q=80);
-            "
-          ></div>
-          <div class="desc-contact">
-            <p class="name">Elsie Amador</p>
-            <p class="message">What the f**k is going on ?</p>
-          </div>
-          <div class="timer">1 day</div>
-        </div>
-
-        <div class="discussion">
-          <div
-            class="photo"
-            style="
-              background-image: url(https://images.unsplash.com/photo-1541747157478-3222166cf342?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=967&q=80);
-            "
-          ></div>
-          <div class="desc-contact">
-            <p class="name">Billy Southard</p>
-            <p class="message">Ahahah 😂</p>
-          </div>
-          <div class="timer">4 days</div>
-        </div>
+        </el-scrollbar>
       </section>
       <section class="chat">
         <div class="header-chat">
@@ -293,6 +241,8 @@ export default {
     const search_username = ref("");
     const users = ref([]);
 
+    const friends = ref([]);
+
     let search_currentPage = 0;
 
     const load_searchUsers = () => {
@@ -358,12 +308,31 @@ export default {
       });
     };
 
+    const pull_friends = () => {
+      $.ajax({
+        url: "http://127.0.0.1:3000/api/friend/getlist/",
+        type: "get",
+        data: {
+          userId: store.state.user.id,
+        },
+        headers: {
+          Authorization: "Bearer " + store.state.user.token,
+        },
+        success(resp) {
+          if (resp.result === "success") {
+            console.log(resp);
+            friends.value = resp.friends;
+          }
+        },
+      });
+    };
+
     onMounted(() => {
       friendSet.add(parseInt(store.state.user.id));
       for (let i = 0; i < store.state.user.friendships.length; i++) {
         friendSet.add(store.state.user.friendships[i]);
       }
-      console.log(friendSet);
+      pull_friends();
     });
     return {
       store,
@@ -373,6 +342,7 @@ export default {
       search_username,
       addFriendVisable,
       friendSet,
+      friends,
       load_searchUsers,
       pull_SearchUsers,
       reset_userSearch,
@@ -463,7 +433,7 @@ export default {
   width: 25%;
   height: 400px;
   box-shadow: 0px 8px 10px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  overflow: auto;
   display: inline-block;
 }
 
@@ -619,6 +589,8 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 8px;
+  overflow: hidden !important; /* 隐藏超出容器的内容 */
+  text-overflow: ellipsis !important; /* 使用省略号表示被裁剪的文本 */
 }
 
 .chat .messages-chat .message .photo {

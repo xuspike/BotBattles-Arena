@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigInteger;
 import java.util.Date;
 
 @Data
@@ -18,8 +19,7 @@ public class Friendships {
     private Integer user1Id;
     private Integer user2Id;
     private Integer lastMsgId;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai") // 定义日期格式
-    private Date lastMsgTime;
+    private BigInteger lastTimestamp;
     private Integer msgCnt1; // 用户1未读消息数
     private Integer msgCnt2; // 用户2未读消息数
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai") // 定义日期格式
