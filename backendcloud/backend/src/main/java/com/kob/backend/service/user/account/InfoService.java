@@ -1,7 +1,9 @@
 package com.kob.backend.service.user.account;
 
+import com.alibaba.fastjson.JSONObject;
+
 import java.util.Map;
 
 public interface InfoService {
-    public Map<String, String> getinfo();
+    public JSONObject getinfo();
 }

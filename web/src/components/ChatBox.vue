@@ -81,9 +81,18 @@
                     display: grid;
                     place-items: center; /* 水平垂直居中 */
                   "
-                  ><el-icon style="cursor: pointer" @click="sendFriendNotice"
-                    ><CirclePlus /></el-icon
-                ></el-col>
+                >
+                  <el-icon
+                    v-if="user.isSended == false && !friendSet.has(user.id)"
+                    style="cursor: pointer"
+                    @click="sendFriendNotice(user)"
+                    ><CirclePlus
+                  /></el-icon>
+                  <el-icon
+                    v-else-if="user.isSended == true && !friendSet.has(user.id)"
+                    ><CircleCheck
+                  /></el-icon>
+                </el-col>
               </el-row>
             </div>
             <div v-loading="search_loading"></div>
@@ -271,10 +280,12 @@
 import { Search } from "@element-plus/icons-vue";
 import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
+import { ElMessage } from "element-plus";
 import $ from "jquery";
 export default {
   setup() {
     const store = useStore();
+    const friendSet = new Set();
 
     const search_loading = ref(false);
     const search_disabled = ref(false);
@@ -286,7 +297,6 @@ export default {
 
     const load_searchUsers = () => {
       if (!search_loading.value && !search_disabled.value) {
-        console.log("loading");
         search_loading.value = true;
         pull_SearchUsers();
       }
@@ -306,7 +316,9 @@ export default {
         },
         success(resp) {
           if (resp.result === "success") {
-            console.log(resp);
+            for (let i = 0; i < resp.users.length; i++) {
+              resp.users[i].isSended = false;
+            }
             users.value = users.value.concat(resp.users);
             if (resp.usersCount / 9 <= search_currentPage)
               search_disabled.value = true;
@@ -322,7 +334,37 @@ export default {
       pull_SearchUsers();
     };
 
-    onMounted(() => {});
+    const sendFriendNotice = (user) => {
+      $.ajax({
+        url: "http://127.0.0.1:3000/api/friend/notice/send/",
+        type: "post",
+        data: {
+          senderId: store.state.user.id,
+          receiverId: user.id,
+        },
+        headers: {
+          Authorization: "Bearer " + store.state.user.token,
+        },
+        success(resp) {
+          if (resp.result === "success") {
+            user.isSended = true;
+            ElMessage({
+              showClose: true,
+              message: "已发送请求~",
+              type: "success",
+            });
+          }
+        },
+      });
+    };
+
+    onMounted(() => {
+      friendSet.add(parseInt(store.state.user.id));
+      for (let i = 0; i < store.state.user.friendships.length; i++) {
+        friendSet.add(store.state.user.friendships[i]);
+      }
+      console.log(friendSet);
+    });
     return {
       store,
       search_disabled,
@@ -330,9 +372,11 @@ export default {
       users,
       search_username,
       addFriendVisable,
+      friendSet,
       load_searchUsers,
       pull_SearchUsers,
       reset_userSearch,
+      sendFriendNotice,
       Search,
     };
   },

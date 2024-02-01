@@ -18,12 +18,11 @@
               "
             >
               <el-tab-pane label="动态通知">
-                <DynamicNotice
-                  :userId="$store.state.user.id"
-                  :token="$store.state.user.token"
-                ></DynamicNotice>
+                <DynamicNotice></DynamicNotice>
               </el-tab-pane>
-              <el-tab-pane label="好友通知"></el-tab-pane>
+              <el-tab-pane label="好友通知">
+                <FriendNotice></FriendNotice>
+              </el-tab-pane>
             </el-tabs>
           </div>
         </ContentField>
@@ -36,11 +35,13 @@
 import ProfileCard from "../../../components/ProfileCard.vue";
 import ContentField from "../../../components/ContentField.vue";
 import DynamicNotice from "../../../components/DynamicNotice.vue";
+import FriendNotice from "../../../components/FriendNotice.vue";
 export default {
   components: {
     ProfileCard,
     ContentField,
     DynamicNotice,
+    FriendNotice,
   },
 };
 </script>

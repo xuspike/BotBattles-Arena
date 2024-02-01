@@ -125,7 +125,6 @@ export default {
         },
         success(resp) {
           if (resp.result === "success") {
-            console.log(resp);
             notices.value = resp.dynamicNotices;
             noticeCount.value = resp.noticeCount;
           }
