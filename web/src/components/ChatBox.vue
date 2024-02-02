@@ -101,9 +101,16 @@
               <div v-loading="search_loading"></div>
             </div>
           </el-dialog>
-
           <!-- class = "message-active"表示选中 -->
-          <div v-for="friend in friends" class="discussion">
+          <div
+            v-for="friend in friends"
+            :key="friend.friend.id"
+            class="discussion"
+            @click="reset_message(friend.friend.username, friend.friendship.id)"
+            :class="{
+              'message-active': friend.friendship.id == current_friendshipId,
+            }"
+          >
             <div
               class="photo"
               :style="'background-image: url(' + friend.friend.photo + ')'"
@@ -119,69 +126,72 @@
               {{ friend.lastMessage.createtime }}
             </div>
           </div>
-          <div class="discussion message-active">
-            <div
-              class="photo"
-              style="
-                background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);
-              "
-            >
-              <div class="online"></div>
-            </div>
-            <div class="desc-contact">
-              <p class="name">Megan Leib</p>
-              <p class="message">9 pm at the bar if possible 😳</p>
-            </div>
-            <div class="timer">12 sec</div>
-          </div>
         </el-scrollbar>
       </section>
       <section class="chat">
         <div class="header-chat">
-          <i class="icon fa fa-user-o" aria-hidden="true"></i>
-          <p class="name">Megan Leib</p>
+          <p style="margin: auto" class="name">
+            {{ current_friendUsername }}
+          </p>
           <i
             class="icon clickable fa fa-ellipsis-h right"
             aria-hidden="true"
           ></i>
         </div>
-        <div class="messages-chat">
-          <div class="message">
+        <div
+          class="messages-chat"
+          v-infinite-scroll="load_messages"
+          :infinite-scroll-disabled="message_disabled"
+          infinite-scroll-distance="1"
+        >
+          <el-scrollbar>
             <div
-              class="photo"
-              style="
-                background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);
-              "
-            ></div>
-            <p class="text">Hi, how are you ?</p>
-          </div>
-          <div class="message text-only">
-            <p class="text">
-              What are you doing tonight ? Want to go take a drink ?
-            </p>
-          </div>
-          <p class="time">14h58</p>
-          <div class="message text-only">
-            <div class="response">
-              <p class="text">Hey Megan ! It's been a while 😃</p>
+              class="message"
+              v-for="message in messages"
+              :key="message.message.id"
+            >
+              <div
+                :class="{
+                  response: store.state.user.id == message.receiver.id,
+                }"
+              >
+                <div
+                  v-if="store.state.user.id == message.receiver.id"
+                  class="photo"
+                  :style="
+                    'background-image: url(' + message.receiver.photo + ')'
+                  "
+                ></div>
+                <p class="text">
+                  {{ message.message.content }}
+                </p>
+                <div
+                  v-if="store.state.user.id == message.sender.id"
+                  class="photo"
+                  :style="'background-image: url(' + message.sender.photo + ')'"
+                ></div>
+              </div>
             </div>
-          </div>
-          <div class="message text-only">
-            <div class="response">
-              <p class="text">When can we meet ?</p>
+            <!-- <div class="message text-only">
+              <div class="response">
+                <p class="text">Hey Megan ! It's been a while 😃</p>
+              </div>
             </div>
-          </div>
-          <p class="response-time time">15h04</p>
-          <div class="message">
-            <div
-              class="photo"
-              style="
-                background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);
-              "
-            ></div>
-            <p class="text">9 pm at the bar if possible 😳</p>
-          </div>
-          <p class="time">15h09</p>
+            <div class="message text-only">
+              <div class="response">
+                <p class="text">When can we meet ?</p>
+              </div>
+            </div>
+            <div class="message">
+              <div
+                class="photo"
+                style="
+                  background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);
+                "
+              ></div>
+              <p class="text">9 pm at the bar if possible 😳</p>
+            </div> -->
+          </el-scrollbar>
         </div>
         <div class="footer-chat">
           <svg
@@ -241,9 +251,16 @@ export default {
     const search_username = ref("");
     const users = ref([]);
 
+    const current_friendUsername = ref("");
     const friends = ref([]);
 
     let search_currentPage = 0;
+
+    let message_currentPage = 0;
+    const current_friendshipId = ref(-1);
+    const message_loading = ref(false);
+    const message_disabled = ref(false);
+    const messages = ref([]);
 
     const load_searchUsers = () => {
       if (!search_loading.value && !search_disabled.value) {
@@ -327,6 +344,47 @@ export default {
       });
     };
 
+    const reset_message = (friendName, friendshipId) => {
+      message_currentPage = 0;
+      current_friendshipId.value = friendshipId;
+      messages.value = [];
+      current_friendUsername.value = friendName;
+      pull_messages();
+    };
+
+    const load_messages = () => {
+      console.log("load_message");
+      if (!message_loading.value && !message_disabled.value) {
+        message_loading.value = true;
+        pull_messages();
+      }
+    };
+
+    const pull_messages = () => {
+      if (current_friendshipId.value == -1) return;
+      message_currentPage++;
+      $.ajax({
+        url: "http://127.0.0.1:3000/api/get/friend/messages/",
+        type: "get",
+        data: {
+          friendshipId: current_friendshipId.value,
+          page: message_currentPage,
+        },
+        headers: {
+          Authorization: "Bearer " + store.state.user.token,
+        },
+        success(resp) {
+          if (resp.result === "success") {
+            console.log(resp);
+            messages.value = messages.value.concat(resp.messages);
+            if (resp.messageCount / 10 <= message_currentPage)
+              message_disabled.value = true;
+            message_loading.value = false;
+          }
+        },
+      });
+    };
+
     onMounted(() => {
       friendSet.add(parseInt(store.state.user.id));
       for (let i = 0; i < store.state.user.friendships.length; i++) {
@@ -343,10 +401,17 @@ export default {
       addFriendVisable,
       friendSet,
       friends,
+      message_disabled,
+      message_loading,
+      current_friendshipId,
+      current_friendUsername,
       load_searchUsers,
       pull_SearchUsers,
       reset_userSearch,
       sendFriendNotice,
+      load_messages,
+      pull_messages,
+      reset_message,
       Search,
     };
   },
@@ -490,7 +555,7 @@ export default {
 .discussions .message-active {
   width: 98.5%;
   height: 70px;
-  background-color: #fff;
+  background-color: lightgray;
   border-bottom: solid 1px #e0e0e0;
 }
 
@@ -583,6 +648,10 @@ export default {
 
 .chat .messages-chat {
   padding: 10px 15px;
+  height: 270px;
+  display: flex;
+  flex-direction: column-reverse;
+  overflow: auto;
 }
 
 .chat .messages-chat .message {

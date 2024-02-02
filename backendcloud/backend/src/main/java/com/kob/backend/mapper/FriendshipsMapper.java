@@ -12,6 +12,6 @@ import java.util.List;
 public interface FriendshipsMapper extends BaseMapper<Friendships> {
     @Select(" (SELECT user2_id AS friend_id FROM friendships WHERE user1_id = #{userId}) " +
             "UNION " +
-            "(SELECT user2_id AS friend_id FROM friendships WHERE user2_id = #{userId})")
+            "(SELECT user1_id AS friend_id FROM friendships WHERE user2_id = #{userId})")
     List<Integer> findAllFriendsByUserId(@Param("userId") Integer userId);
 }

@@ -102,6 +102,7 @@ export default {
         },
         success(resp) {
           if (resp.result === "success") {
+            console.log("success");
           } else {
             ElMessage({
               showClose: true,
