@@ -106,7 +106,7 @@
             v-for="friend in friends"
             :key="friend.friend.id"
             class="discussion"
-            @click="reset_message(friend.friend.username, friend.friendship.id)"
+            @click="reset_message(friend.friend, friend.friendship.id)"
             :class="{
               'message-active': friend.friendship.id == current_friendshipId,
             }"
@@ -152,24 +152,22 @@
             >
               <div
                 :class="{
-                  response: store.state.user.id == message.receiver.id,
+                  response: store.state.user.id == message.sender.id,
                 }"
               >
-                <div
+                <span
                   v-if="store.state.user.id == message.receiver.id"
                   class="photo"
-                  :style="
-                    'background-image: url(' + message.receiver.photo + ')'
-                  "
-                ></div>
-                <p class="text">
-                  {{ message.message.content }}
-                </p>
-                <div
+                  :style="'background-image: url(' + message.sender.photo + ')'"
+                ></span>
+                <span
                   v-if="store.state.user.id == message.sender.id"
                   class="photo"
                   :style="'background-image: url(' + message.sender.photo + ')'"
-                ></div>
+                ></span>
+                <p class="text">
+                  {{ message.message.content }}
+                </p>
               </div>
             </div>
             <!-- <div class="message text-only">
@@ -193,7 +191,7 @@
             </div> -->
           </el-scrollbar>
         </div>
-        <div class="footer-chat">
+        <div class="footer-chat" v-if="current_friendId != -1">
           <svg
             style="margin-right: 1vw"
             t="1706541978834"
@@ -213,8 +211,8 @@
             ></path>
           </svg>
           <el-input
-            v-model="textarea"
-            :rows="2"
+            v-model="content"
+            :rows="3"
             type="textarea"
             placeholder="Please input"
           />
@@ -225,7 +223,9 @@
               font-size: 35px;
               background-color: lightskyblue;
               border-radius: 50px;
+              cursor: pointer;
             "
+            @click="sendMessage"
             ><Promotion
           /></el-icon>
         </div>
@@ -243,6 +243,7 @@ import $ from "jquery";
 export default {
   setup() {
     const store = useStore();
+    const socketUrl = `ws://127.0.0.1:3000/websocket/single/${store.state.user.token}/`;
     const friendSet = new Set();
 
     const search_loading = ref(false);
@@ -252,6 +253,7 @@ export default {
     const users = ref([]);
 
     const current_friendUsername = ref("");
+    const current_friendId = ref(-1);
     const friends = ref([]);
 
     let search_currentPage = 0;
@@ -261,6 +263,7 @@ export default {
     const message_loading = ref(false);
     const message_disabled = ref(false);
     const messages = ref([]);
+    const content = ref("");
 
     const load_searchUsers = () => {
       if (!search_loading.value && !search_disabled.value) {
@@ -337,23 +340,23 @@ export default {
         },
         success(resp) {
           if (resp.result === "success") {
-            console.log(resp);
             friends.value = resp.friends;
           }
         },
       });
     };
 
-    const reset_message = (friendName, friendshipId) => {
+    const reset_message = (friend, friendshipId) => {
       message_currentPage = 0;
       current_friendshipId.value = friendshipId;
       messages.value = [];
-      current_friendUsername.value = friendName;
+      current_friendUsername.value = friend.username;
+      current_friendId.value = friend.id;
+      content.value = "";
       pull_messages();
     };
 
     const load_messages = () => {
-      console.log("load_message");
       if (!message_loading.value && !message_disabled.value) {
         message_loading.value = true;
         pull_messages();
@@ -385,12 +388,54 @@ export default {
       });
     };
 
+    let socket = null;
+
+    // 待完成
+    const sendMessage = () => {
+      if (content.value == "") {
+        ElMessage({
+          showClose: true,
+          message: "消息不能为空哦~",
+          type: "warning",
+        });
+        return;
+      }
+      socket.send(
+        JSON.stringify({
+          event: "sendMessage",
+          friendshipId: current_friendshipId.value,
+          senderId: store.state.user.id,
+          receiverId: current_friendId.value,
+          content: content.value,
+        })
+      );
+      content.value = "";
+      const chat_box = document.getElementsByClassName("messages-chat");
+      // bug未生效
+      if (chat_box) {
+        chat_box.scrollTop = chat_box.clientHeight;
+      }
+    };
+
     onMounted(() => {
       friendSet.add(parseInt(store.state.user.id));
       for (let i = 0; i < store.state.user.friendships.length; i++) {
         friendSet.add(store.state.user.friendships[i]);
       }
       pull_friends();
+
+      socket = new WebSocket(socketUrl);
+      socket.onopen = () => {
+        console.log("开始连接！");
+      };
+
+      socket.onmessage = (msg) => {
+        const data = JSON.parse(msg.data);
+        console.log(data);
+        if (data.event === "receive message") {
+          messages.value = messages.value.concat(data);
+        }
+      };
     });
     return {
       store,
@@ -405,6 +450,9 @@ export default {
       message_loading,
       current_friendshipId,
       current_friendUsername,
+      content,
+      current_friendId,
+      messages,
       load_searchUsers,
       pull_SearchUsers,
       reset_userSearch,
@@ -412,6 +460,7 @@ export default {
       load_messages,
       pull_messages,
       reset_message,
+      sendMessage,
       Search,
     };
   },
@@ -648,7 +697,7 @@ export default {
 
 .chat .messages-chat {
   padding: 10px 15px;
-  height: 270px;
+  height: 257px;
   display: flex;
   flex-direction: column-reverse;
   overflow: auto;
@@ -709,7 +758,7 @@ export default {
 
 .footer-chat {
   width: 73%;
-  height: 70px;
+  height: 100px;
   display: flex;
   align-items: center;
   position: absolute;

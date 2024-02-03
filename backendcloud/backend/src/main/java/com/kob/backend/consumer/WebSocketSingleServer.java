@@ -1,10 +1,13 @@
 package com.kob.backend.consumer;
 
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.kob.backend.consumer.utils.JwtAuthentication;
+import com.kob.backend.mapper.FriendshipsMapper;
+import com.kob.backend.mapper.MessageMapper;
 import com.kob.backend.mapper.UserMapper;
+import com.kob.backend.pojo.Message;
 import com.kob.backend.pojo.User;
+import com.kob.backend.service.message.SendMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -13,6 +16,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -27,16 +31,45 @@ public class WebSocketSingleServer {
 
     public static UserMapper userMapper;
 
+    public static MessageMapper messageMapper;
+
+    public static FriendshipsMapper friendshipsMapper;
+
     public static RestTemplate restTemplate;
 
     @Autowired
     public void setRestTemplate(RestTemplate restTemplate) {
-        WebSocketServer.restTemplate = restTemplate;
+        WebSocketSingleServer.restTemplate = restTemplate;
     }
 
     @Autowired
     public void setUserMapper(UserMapper userMapper) {
-        WebSocketServer.userMapper = userMapper;
+        WebSocketSingleServer.userMapper = userMapper;
+    }
+
+    @Autowired
+    public void setMessageMapper(MessageMapper messageMapper) {
+        WebSocketSingleServer.messageMapper = messageMapper;
+    }
+
+    @Autowired
+    private void setFriendshipsMapper(FriendshipsMapper friendshipsMapper) {
+        WebSocketSingleServer.friendshipsMapper = friendshipsMapper;
+    }
+
+    private Message SendMessageToDataBase(Integer friendshipId ,Integer senderId, Integer receiverId, String content) {
+        Message new_message = new Message(
+                null,
+                friendshipId,
+                senderId,
+                receiverId,
+                content,
+                new Date()
+        );
+
+        messageMapper.insert(new_message);
+
+        return new_message;
     }
 
     @OnOpen
@@ -68,6 +101,24 @@ public class WebSocketSingleServer {
         JSONObject data = JSONObject.parseObject(message);
         String event = data.getString("event");
         // 反过来调用equals()，可避免event为空时抛出异常
+        if("sendMessage".equals(event)) {
+            Integer friendshipId = Integer.valueOf(data.getString("friendshipId"));
+             Integer senderId = Integer.valueOf(data.getString("senderId"));
+             Integer receiverId = Integer.valueOf(data.getString("receiverId"));
+             String content = data.getString("content");
+
+             WebSocketSingleServer sender = users.get(senderId);
+             WebSocketSingleServer receiver = users.get(receiverId);
+
+             Message new_message = SendMessageToDataBase(friendshipId, senderId, receiverId, content);
+             JSONObject item = new JSONObject();
+             item.put("message", new_message);
+             item.put("sender", userMapper.selectById(senderId));
+             item.put("receiver", userMapper.selectById(receiverId));
+             item.put("event", "receive message");
+             if(sender != null) sender.sendMessage(item.toJSONString());
+             if(receiver != null) receiver.sendMessage(item.toJSONString());
+        }
     }
 
     @OnError
