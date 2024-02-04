@@ -117,10 +117,10 @@
             ></div>
             <div class="desc-contact">
               <p class="name">{{ friend.friend.username }}</p>
-              <p class="message" v-if="friend.friendship.lastMsgId != -1">
+              <p class="msg" v-if="friend.friendship.lastMsgId != -1">
                 {{ friend.lastMessage.content }}
               </p>
-              <p class="message" v-else>和新朋友开始聊天吧~</p>
+              <p class="msg" v-else>和新朋友开始聊天吧~</p>
             </div>
             <div class="timer" v-if="friend.friendship.lastMsgId != -1">
               {{ friend.lastMessage.createtime }}
@@ -138,58 +138,31 @@
             aria-hidden="true"
           ></i>
         </div>
-        <div
-          class="messages-chat"
-          v-infinite-scroll="load_messages"
-          :infinite-scroll-disabled="message_disabled"
-          infinite-scroll-distance="1"
-        >
-          <el-scrollbar>
-            <div
-              class="message"
-              v-for="message in messages"
-              :key="message.message.id"
-            >
-              <div
-                :class="{
-                  response: store.state.user.id == message.sender.id,
-                }"
-              >
-                <span
-                  v-if="store.state.user.id == message.receiver.id"
-                  class="photo"
-                  :style="'background-image: url(' + message.sender.photo + ')'"
-                ></span>
-                <span
-                  v-if="store.state.user.id == message.sender.id"
-                  class="photo"
-                  :style="'background-image: url(' + message.sender.photo + ')'"
-                ></span>
-                <p class="text">
-                  {{ message.message.content }}
-                </p>
-              </div>
-            </div>
-            <!-- <div class="message text-only">
-              <div class="response">
-                <p class="text">Hey Megan ! It's been a while 😃</p>
-              </div>
-            </div>
-            <div class="message text-only">
-              <div class="response">
-                <p class="text">When can we meet ?</p>
-              </div>
-            </div>
-            <div class="message">
-              <div
-                class="photo"
-                style="
-                  background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);
-                "
-              ></div>
-              <p class="text">9 pm at the bar if possible 😳</p>
-            </div> -->
-          </el-scrollbar>
+        <div class="messages-chat" @scroll="handleScroll">
+          <!-- <el-scrollbar> -->
+          <div
+            class="message"
+            v-for="message in messages"
+            :key="message.message.id"
+            :class="{
+              response: store.state.user.id == message.sender.id,
+            }"
+          >
+            <span
+              v-if="store.state.user.id == message.receiver.id"
+              class="photo"
+              :style="'background-image: url(' + message.sender.photo + ')'"
+            ></span>
+            <span
+              v-if="store.state.user.id == message.sender.id"
+              class="photo"
+              :style="'background-image: url(' + message.sender.photo + ')'"
+            ></span>
+            <p class="text">
+              {{ message.message.content }}
+            </p>
+          </div>
+          <!-- </el-scrollbar> -->
         </div>
         <div class="footer-chat" v-if="current_friendId != -1">
           <svg
@@ -236,7 +209,7 @@
 
 <script>
 import { Search } from "@element-plus/icons-vue";
-import { onMounted, ref } from "vue";
+import { nextTick, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
 import { ElMessage } from "element-plus";
 import $ from "jquery";
@@ -255,6 +228,7 @@ export default {
     const current_friendUsername = ref("");
     const current_friendId = ref(-1);
     const friends = ref([]);
+    const search_friendName = ref("");
 
     let search_currentPage = 0;
 
@@ -301,6 +275,7 @@ export default {
     const reset_userSearch = () => {
       search_currentPage = 0;
       users.value = [];
+
       pull_SearchUsers();
     };
 
@@ -328,18 +303,64 @@ export default {
       });
     };
 
+    const change_date = (current_date) => {
+      // 将日期转化为时间差
+      const currentDate = new Date(); // 获取当前时间的 Date 对象
+      const serverDate = new Date(current_date);
+      // 计算时间差（单位为毫秒）
+      let timeDifference = currentDate.getTime() - serverDate.getTime();
+      timeDifference /= 1000;
+      let pastTime = "";
+
+      if (timeDifference < 60) {
+        timeDifference = parseInt(timeDifference);
+        pastTime = timeDifference.toString() + "秒前";
+      } else if (timeDifference < 3600) {
+        timeDifference /= 60;
+        timeDifference = parseInt(timeDifference);
+        pastTime = timeDifference.toString() + "分钟前";
+      } else if (timeDifference < 3600 * 24) {
+        timeDifference /= 3600;
+        timeDifference = parseInt(timeDifference);
+        pastTime = timeDifference.toString() + "小时前";
+      } else if (timeDifference < 3600 * 24 * 30) {
+        timeDifference /= 3600 * 24;
+        timeDifference = parseInt(timeDifference);
+        pastTime = timeDifference.toString() + "天前";
+      } else if (timeDifference < 3600 * 24 * 30 * 12) {
+        timeDifference /= 3600 * 24 * 30;
+        timeDifference = parseInt(timeDifference);
+        pastTime = timeDifference.toString() + "月前";
+      } else {
+        timeDifference /= 3600 * 24 * 30 * 12;
+        timeDifference = parseInt(timeDifference);
+        pastTime = timeDifference.toString() + "年前";
+      }
+
+      return pastTime;
+    };
+
     const pull_friends = () => {
       $.ajax({
         url: "http://127.0.0.1:3000/api/friend/getlist/",
         type: "get",
         data: {
           userId: store.state.user.id,
+          query: search_friendName.value,
         },
         headers: {
           Authorization: "Bearer " + store.state.user.token,
         },
         success(resp) {
           if (resp.result === "success") {
+            console.log(resp.friends);
+            for (let i = 0; i < resp.friends.length; i++) {
+              if (resp.friends[i].lastMessage) {
+                resp.friends[i].lastMessage.createtime = change_date(
+                  resp.friends[i].lastMessage.createtime
+                );
+              }
+            }
             friends.value = resp.friends;
           }
         },
@@ -353,14 +374,34 @@ export default {
       current_friendUsername.value = friend.username;
       current_friendId.value = friend.id;
       content.value = "";
+      message_disabled.value = false;
       pull_messages();
     };
 
     const load_messages = () => {
+      console.log(message_loading.value, message_disabled.value);
       if (!message_loading.value && !message_disabled.value) {
         message_loading.value = true;
         pull_messages();
       }
+    };
+
+    const handleScroll = (event) => {
+      if (event.target.scrollTop === 0) {
+        load_messages();
+      }
+    };
+
+    const scrollToBottom = (pre_count) => {
+      nextTick(() => {
+        const chat_box = document.getElementsByClassName("messages-chat");
+        const chat_messages = document.querySelectorAll(".message");
+        const last_message = chat_messages[pre_count - 1];
+        if (last_message) {
+          last_message.scrollIntoView({ block: "end" });
+          chat_box.scrollTop += 10;
+        }
+      });
     };
 
     const pull_messages = () => {
@@ -378,11 +419,13 @@ export default {
         },
         success(resp) {
           if (resp.result === "success") {
-            console.log(resp);
-            messages.value = messages.value.concat(resp.messages);
+            messages.value = resp.messages.reverse().concat(messages.value);
+            // messages.value = messages.value.concat(resp.messages);
             if (resp.messageCount / 10 <= message_currentPage)
               message_disabled.value = true;
             message_loading.value = false;
+            if (message_currentPage == 1) scrollToBottom(resp.messages.length);
+            else scrollToBottom(resp.messages.length + 1);
           }
         },
       });
@@ -410,11 +453,6 @@ export default {
         })
       );
       content.value = "";
-      const chat_box = document.getElementsByClassName("messages-chat");
-      // bug未生效
-      if (chat_box) {
-        chat_box.scrollTop = chat_box.clientHeight;
-      }
     };
 
     onMounted(() => {
@@ -424,6 +462,10 @@ export default {
       }
       pull_friends();
 
+      watch(search_friendName.value, () => {
+        pull_friends();
+      });
+
       socket = new WebSocket(socketUrl);
       socket.onopen = () => {
         console.log("开始连接！");
@@ -431,9 +473,10 @@ export default {
 
       socket.onmessage = (msg) => {
         const data = JSON.parse(msg.data);
-        console.log(data);
         if (data.event === "receive message") {
           messages.value = messages.value.concat(data);
+          scrollToBottom(messages.value.length);
+          pull_friends();
         }
       };
     });
@@ -461,6 +504,7 @@ export default {
       pull_messages,
       reset_message,
       sendMessage,
+      handleScroll,
       Search,
     };
   },
@@ -646,7 +690,7 @@ export default {
   color: gray;
 }
 
-.discussions .discussion .message {
+.discussions .discussion .msg {
   margin: 6px 0 0 20px;
   font-family: "Montserrat", sans-serif;
   font-size: 8pt;
@@ -654,7 +698,7 @@ export default {
 }
 
 .timer {
-  margin-left: 5%;
+  width: 30px;
   font-family: "Open Sans", sans-serif;
   font-size: 9px;
   padding: 3px 3px;
@@ -696,17 +740,15 @@ export default {
 }
 
 .chat .messages-chat {
-  padding: 10px 15px;
-  height: 257px;
-  display: flex;
-  flex-direction: column-reverse;
+  padding: 0px 15px;
+  height: 245px;
   overflow: auto;
 }
 
 .chat .messages-chat .message {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  margin-top: 8px;
   overflow: hidden !important; /* 隐藏超出容器的内容 */
   text-overflow: ellipsis !important; /* 使用省略号表示被裁剪的文本 */
 }
@@ -747,9 +789,7 @@ export default {
 }
 
 .response {
-  float: right;
-  margin-right: 0px !important;
-  margin-left: auto; /* flexbox alignment rule */
+  flex-direction: row-reverse;
 }
 
 .response .text {
@@ -763,8 +803,9 @@ export default {
   align-items: center;
   position: absolute;
   bottom: 0;
+  margin-top: 8px;
   background-color: transparent;
-  border-top: 2px solid #eee;
+  /* border-top: 1px solid #eee; */
 }
 
 .chat .footer-chat .icon {

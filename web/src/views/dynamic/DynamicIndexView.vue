@@ -486,7 +486,6 @@ export default {
 
     const load = () => {
       if (!loading.value && !disabled.value) {
-        console.log("load");
         loading.value = true;
         pull_dynamics();
       }
@@ -539,14 +538,6 @@ export default {
         },
       });
     };
-
-    // // 扩增动态数
-    // const add_dynamics = () => {
-    //   isLoading.value = true;
-    //   current_page = current_page + 1;
-    //   textarea.value = "";
-    //   pull_dynamics();
-    // };
 
     // 将时间差转化
     const change_date = (current_date) => {

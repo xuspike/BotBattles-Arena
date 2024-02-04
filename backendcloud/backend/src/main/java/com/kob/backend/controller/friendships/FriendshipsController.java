@@ -29,7 +29,7 @@ public class FriendshipsController {
     @GetMapping("/api/friend/getlist/")
     public JSONObject getList(@RequestParam Map<String, String> data) {
         Integer userId = Integer.valueOf(data.get("userId"));
-
-        return getFriendshipsListService.getList(userId);
+        String query = data.get("query");
+        return getFriendshipsListService.getList(userId, query);
     }
 }

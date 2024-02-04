@@ -5,6 +5,7 @@ import com.kob.backend.consumer.utils.JwtAuthentication;
 import com.kob.backend.mapper.FriendshipsMapper;
 import com.kob.backend.mapper.MessageMapper;
 import com.kob.backend.mapper.UserMapper;
+import com.kob.backend.pojo.Friendships;
 import com.kob.backend.pojo.Message;
 import com.kob.backend.pojo.User;
 import com.kob.backend.service.message.SendMessageService;
@@ -16,6 +17,8 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -110,14 +113,33 @@ public class WebSocketSingleServer {
              WebSocketSingleServer sender = users.get(senderId);
              WebSocketSingleServer receiver = users.get(receiverId);
 
+             Friendships friendship = friendshipsMapper.selectById(friendshipId);
              Message new_message = SendMessageToDataBase(friendshipId, senderId, receiverId, content);
              JSONObject item = new JSONObject();
              item.put("message", new_message);
              item.put("sender", userMapper.selectById(senderId));
              item.put("receiver", userMapper.selectById(receiverId));
              item.put("event", "receive message");
+             Integer msgCount1 = 0, msgCount2 = 0;
              if(sender != null) sender.sendMessage(item.toJSONString());
              if(receiver != null) receiver.sendMessage(item.toJSONString());
+             else {
+                 if(receiverId == friendship.getUser1Id()) msgCount1 ++;
+                 else msgCount2 ++;
+             }
+
+             friendshipsMapper.updateById(
+                     new Friendships(
+                             friendshipId,
+                             friendship.getUser1Id(),
+                             friendship.getUser2Id(),
+                             new_message.getId(),
+                             BigInteger.valueOf(new_message.getCreatetime().getTime()),
+                             friendship.getMsgCnt1() + msgCount1,
+                             friendship.getMsgCnt2() + msgCount2,
+                             friendship.getCreatetime()
+                     )
+             );
         }
     }
 

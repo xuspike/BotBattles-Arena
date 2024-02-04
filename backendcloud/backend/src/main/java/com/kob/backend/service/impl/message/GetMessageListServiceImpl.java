@@ -47,7 +47,7 @@ public class GetMessageListServiceImpl implements GetMessageListService {
 
         IPage<Message> messageIPage = new Page<>(page, 10);
         QueryWrapper<Message> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("friendship_id", friendshipId).orderByAsc("id"); // 消息是从上到下渲染
+        queryWrapper.eq("friendship_id", friendshipId).orderByDesc("id"); // 消息是从上到下渲染
         List<Message> messages = messageMapper.selectPage(messageIPage, queryWrapper).getRecords();
 
         List<JSONObject> items = new ArrayList<>();
