@@ -106,15 +106,44 @@
             v-for="friend in friends"
             :key="friend.friend.id"
             class="discussion"
-            @click="reset_message(friend.friend, friend.friendship.id)"
+            @click="reset_message(friend.friend, friend.friendship)"
             :class="{
               'message-active': friend.friendship.id == current_friendshipId,
             }"
           >
+            <el-badge
+              v-if="
+                friend.friendship.user1Id == store.state.user.id &&
+                friend.friendship.msgCnt1 != 0
+              "
+              :value="friend.friendship.msgCnt1"
+              class="item"
+            >
+              <div
+                class="photo"
+                :style="'background-image: url(' + friend.friend.photo + ')'"
+              ></div>
+            </el-badge>
+            <el-badge
+              v-else-if="
+                friend.friendship.user2Id == store.state.user.id &&
+                friend.friendship.msgCnt2 != 0
+              "
+              :value="friend.friendship.msgCnt2"
+              class="item"
+            >
+              <div
+                class="photo"
+                :style="'background-image: url(' + friend.friend.photo + ')'"
+              ></div>
+            </el-badge>
+
             <div
+              v-else
               class="photo"
               :style="'background-image: url(' + friend.friend.photo + ')'"
             ></div>
+
             <div class="desc-contact">
               <p class="name">{{ friend.friend.username }}</p>
               <p class="msg" v-if="friend.friendship.lastMsgId != -1">
@@ -137,6 +166,17 @@
             class="icon clickable fa fa-ellipsis-h right"
             aria-hidden="true"
           ></i>
+        </div>
+        <div class="chat-emoji" id="chat-emoji">
+          <EmojiPicker
+            v-if="isOpenEmoji"
+            :hide-search="true"
+            :hide-group-names="true"
+            :disable-sticky-group-names="true"
+            :native="true"
+            @select="onSelectEmoji"
+            style="position: absolute; top: 45px"
+          />
         </div>
         <div class="messages-chat" @scroll="handleScroll">
           <!-- <el-scrollbar> -->
@@ -164,25 +204,30 @@
           </div>
           <!-- </el-scrollbar> -->
         </div>
+
         <div class="footer-chat" v-if="current_friendId != -1">
-          <svg
-            style="margin-right: 1vw"
-            t="1706541978834"
-            class="icon"
-            viewBox="0 0 1024 1024"
-            version="1.1"
-            xmlns="http://www.w3.org/2000/svg"
-            p-id="1462"
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            width="35"
-            height="35"
-          >
-            <path
-              d="M288 421a48 48 0 1 0 96 0 48 48 0 1 0-96 0z m352 0a48 48 0 1 0 96 0 48 48 0 1 0-96 0zM512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64z m263 711c-34.2 34.2-74 61-118.3 79.8C611 874.2 562.3 884 512 884c-50.3 0-99-9.8-144.8-29.2-44.3-18.7-84.1-45.6-118.3-79.8-34.2-34.2-61-74-79.8-118.3C149.8 611 140 562.3 140 512s9.8-99 29.2-144.8c18.7-44.3 45.6-84.1 79.8-118.3 34.2-34.2 74-61 118.3-79.8C413 149.8 461.7 140 512 140c50.3 0 99 9.8 144.8 29.2 44.3 18.7 84.1 45.6 118.3 79.8 34.2 34.2 61 74 79.8 118.3C874.2 413 884 461.7 884 512s-9.8 99-29.2 144.8c-18.7 44.3-45.6 84.1-79.8 118.2zM664 533h-48.1c-4.2 0-7.8 3.2-8.1 7.4C604 589.9 562.5 629 512 629s-92.1-39.1-95.8-88.6c-0.3-4.2-3.9-7.4-8.1-7.4H360c-4.6 0-8.2 3.8-8 8.4 4.4 84.3 74.5 151.6 160 151.6s155.6-67.3 160-151.6c0.2-4.6-3.4-8.4-8-8.4z"
-              fill="#1296DB"
-              p-id="1463"
-            ></path>
-          </svg>
+          <div id="emoji-icon">
+            <svg
+              style="margin-right: 1vw; cursor: pointer"
+              t="1706541978834"
+              class="icon"
+              viewBox="0 0 1024 1024"
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+              p-id="1462"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              width="35"
+              height="35"
+              @click="openChatEmoji"
+            >
+              <path
+                d="M288 421a48 48 0 1 0 96 0 48 48 0 1 0-96 0z m352 0a48 48 0 1 0 96 0 48 48 0 1 0-96 0zM512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64z m263 711c-34.2 34.2-74 61-118.3 79.8C611 874.2 562.3 884 512 884c-50.3 0-99-9.8-144.8-29.2-44.3-18.7-84.1-45.6-118.3-79.8-34.2-34.2-61-74-79.8-118.3C149.8 611 140 562.3 140 512s9.8-99 29.2-144.8c18.7-44.3 45.6-84.1 79.8-118.3 34.2-34.2 74-61 118.3-79.8C413 149.8 461.7 140 512 140c50.3 0 99 9.8 144.8 29.2 44.3 18.7 84.1 45.6 118.3 79.8 34.2 34.2 61 74 79.8 118.3C874.2 413 884 461.7 884 512s-9.8 99-29.2 144.8c-18.7 44.3-45.6 84.1-79.8 118.2zM664 533h-48.1c-4.2 0-7.8 3.2-8.1 7.4C604 589.9 562.5 629 512 629s-92.1-39.1-95.8-88.6c-0.3-4.2-3.9-7.4-8.1-7.4H360c-4.6 0-8.2 3.8-8 8.4 4.4 84.3 74.5 151.6 160 151.6s155.6-67.3 160-151.6c0.2-4.6-3.4-8.4-8-8.4z"
+                fill="#1296DB"
+                p-id="1463"
+              ></path>
+            </svg>
+          </div>
+
           <el-input
             v-model="content"
             :rows="3"
@@ -212,8 +257,12 @@ import { Search } from "@element-plus/icons-vue";
 import { nextTick, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
 import { ElMessage } from "element-plus";
+import EmojiPicker from "vue3-emoji-picker";
 import $ from "jquery";
 export default {
+  components: {
+    EmojiPicker,
+  },
   setup() {
     const store = useStore();
     const socketUrl = `ws://127.0.0.1:3000/websocket/single/${store.state.user.token}/`;
@@ -238,6 +287,10 @@ export default {
     const message_disabled = ref(false);
     const messages = ref([]);
     const content = ref("");
+
+    const isOpenEmoji = ref(false);
+
+    const isClickEmoji = ref(false);
 
     const load_searchUsers = () => {
       if (!search_loading.value && !search_disabled.value) {
@@ -353,7 +406,6 @@ export default {
         },
         success(resp) {
           if (resp.result === "success") {
-            console.log(resp.friends);
             for (let i = 0; i < resp.friends.length; i++) {
               if (resp.friends[i].lastMessage) {
                 resp.friends[i].lastMessage.createtime = change_date(
@@ -367,19 +419,64 @@ export default {
       });
     };
 
-    const reset_message = (friend, friendshipId) => {
+    const openChatEmoji = () => {
+      if (isOpenEmoji.value == false) isOpenEmoji.value = true;
+      else isOpenEmoji.value = false;
+      isClickEmoji.value = true;
+    };
+
+    // 将选择的emoji添加到content
+    const onSelectEmoji = (emoji) => {
+      console.log(emoji);
+      isOpenEmoji.value = false;
+      content.value += emoji.i;
+    };
+
+    const init_msgCnt = (friendshipId, type) => {
+      $.ajax({
+        url: "http://127.0.0.1:3000/api/friendship/msgCnt/init/",
+        type: "post",
+        data: {
+          friendshipId,
+          type,
+        },
+        headers: {
+          Authorization: "Bearer " + store.state.user.token,
+        },
+        success(resp) {
+          if (resp.result === "success") {
+            return;
+          }
+        },
+      });
+    };
+
+    const reset_message = (friend, friendship) => {
       message_currentPage = 0;
-      current_friendshipId.value = friendshipId;
+      current_friendshipId.value = friendship.id;
       messages.value = [];
       current_friendUsername.value = friend.username;
       current_friendId.value = friend.id;
       content.value = "";
       message_disabled.value = false;
+      // 重置未读消息
+      if (
+        store.state.user.id == friendship.user1Id &&
+        friendship.msgCnt1 != 0
+      ) {
+        friendship.msgCnt1 = 0;
+        init_msgCnt(friendship.id, 1);
+      } else if (
+        store.state.user.id == friendship.user2Id &&
+        friendship.msgCnt2 != 0
+      ) {
+        friendship.msgCnt2 = 0;
+        init_msgCnt(friendship.id, 2);
+      }
       pull_messages();
     };
 
     const load_messages = () => {
-      console.log(message_loading.value, message_disabled.value);
       if (!message_loading.value && !message_disabled.value) {
         message_loading.value = true;
         pull_messages();
@@ -456,6 +553,23 @@ export default {
     };
 
     onMounted(() => {
+      // 控制emoji组件
+      const chatEmoji = document.getElementById("chat-emoji");
+
+      // 全局点击事件，用于关闭 div
+      document.addEventListener("click", function () {
+        if (isClickEmoji.value == true) {
+          isClickEmoji.value = false;
+          return;
+        }
+        isOpenEmoji.value = false;
+      });
+
+      // 阻止 div 内的点击事件冒泡
+      chatEmoji.addEventListener("click", function (event) {
+        event.stopPropagation();
+      });
+
       friendSet.add(parseInt(store.state.user.id));
       for (let i = 0; i < store.state.user.friendships.length; i++) {
         friendSet.add(store.state.user.friendships[i]);
@@ -496,6 +610,7 @@ export default {
       content,
       current_friendId,
       messages,
+      isOpenEmoji,
       load_searchUsers,
       pull_SearchUsers,
       reset_userSearch,
@@ -505,6 +620,8 @@ export default {
       reset_message,
       sendMessage,
       handleScroll,
+      openChatEmoji,
+      onSelectEmoji,
       Search,
     };
   },
@@ -512,6 +629,8 @@ export default {
 </script>
 
 <style scoped>
+@import "vue3-emoji-picker/css";
+
 .makeFriend {
   height: 270px;
   overflow: auto;
