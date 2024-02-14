@@ -151,7 +151,10 @@
               </p>
               <p class="msg" v-else>和新朋友开始聊天吧~</p>
             </div>
-            <div class="timer" v-if="friend.friendship.lastMsgId != -1">
+            <div
+              class="last-message-time"
+              v-if="friend.friendship.lastMsgId != -1"
+            >
               {{ friend.lastMessage.createtime }}
             </div>
           </div>
@@ -180,27 +183,33 @@
         </div>
         <div class="messages-chat" @scroll="handleScroll">
           <!-- <el-scrollbar> -->
-          <div
-            class="message"
-            v-for="message in messages"
-            :key="message.message.id"
-            :class="{
-              response: store.state.user.id == message.sender.id,
-            }"
-          >
-            <span
-              v-if="store.state.user.id == message.receiver.id"
-              class="photo"
-              :style="'background-image: url(' + message.sender.photo + ')'"
-            ></span>
-            <span
-              v-if="store.state.user.id == message.sender.id"
-              class="photo"
-              :style="'background-image: url(' + message.sender.photo + ')'"
-            ></span>
-            <p class="text">
-              {{ message.message.content }}
-            </p>
+          <div v-for="message in messages" :key="message.message.id">
+            <div
+              v-if="message.isDisplayTime"
+              style="font-size: 10px; text-align: center"
+            >
+              {{ message.time }}
+            </div>
+            <div
+              class="message"
+              :class="{
+                response: store.state.user.id == message.sender.id,
+              }"
+            >
+              <span
+                v-if="store.state.user.id == message.receiver.id"
+                class="photo"
+                :style="'background-image: url(' + message.sender.photo + ')'"
+              ></span>
+              <span
+                v-if="store.state.user.id == message.sender.id"
+                class="photo"
+                :style="'background-image: url(' + message.sender.photo + ')'"
+              ></span>
+              <p class="text">
+                {{ message.message.content }}
+              </p>
+            </div>
           </div>
           <!-- </el-scrollbar> -->
         </div>
@@ -356,41 +365,87 @@ export default {
       });
     };
 
-    const change_date = (current_date) => {
-      // 将日期转化为时间差
-      const currentDate = new Date(); // 获取当前时间的 Date 对象
-      const serverDate = new Date(current_date);
-      // 计算时间差（单位为毫秒）
-      let timeDifference = currentDate.getTime() - serverDate.getTime();
-      timeDifference /= 1000;
-      let pastTime = "";
+    const fomat_date = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0"); // 月份是从 0 开始的
+      const day = String(date.getDate()).padStart(2, "0");
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      const seconds = String(date.getSeconds()).padStart(2, "0");
 
-      if (timeDifference < 60) {
-        timeDifference = parseInt(timeDifference);
-        pastTime = timeDifference.toString() + "秒前";
-      } else if (timeDifference < 3600) {
-        timeDifference /= 60;
-        timeDifference = parseInt(timeDifference);
-        pastTime = timeDifference.toString() + "分钟前";
-      } else if (timeDifference < 3600 * 24) {
-        timeDifference /= 3600;
-        timeDifference = parseInt(timeDifference);
-        pastTime = timeDifference.toString() + "小时前";
-      } else if (timeDifference < 3600 * 24 * 30) {
-        timeDifference /= 3600 * 24;
-        timeDifference = parseInt(timeDifference);
-        pastTime = timeDifference.toString() + "天前";
-      } else if (timeDifference < 3600 * 24 * 30 * 12) {
-        timeDifference /= 3600 * 24 * 30;
-        timeDifference = parseInt(timeDifference);
-        pastTime = timeDifference.toString() + "月前";
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    };
+
+    // 给好友位改时间
+    const change_date = (past_date) => {
+      let current_date = fomat_date(new Date());
+      let past_year = past_date.slice(0, 4);
+      let past_month = past_date.slice(5, 7);
+      let past_day = past_date.slice(8, 10);
+
+      let current_year = current_date.slice(0, 4);
+      let current_month = current_date.slice(5, 7);
+      let current_day = current_date.slice(8, 10);
+
+      let new_date = "";
+
+      if (past_year == current_year) {
+        if (past_month == current_month) {
+          let new_past_day = parseInt(past_day);
+          let new_current_day = parseInt(current_day);
+          if (new_past_day == new_current_day)
+            new_date += past_date.slice(11, 16);
+          else if (new_current_day - new_past_day == 1)
+            new_date += "昨天 " + past_date.slice(11, 16);
+          else new_date += past_month + "-" + past_day;
+        } else {
+          new_date += past_month + "-" + past_day;
+        }
       } else {
-        timeDifference /= 3600 * 24 * 30 * 12;
-        timeDifference = parseInt(timeDifference);
-        pastTime = timeDifference.toString() + "年前";
+        new_date += past_year.slice(2, 4) + "-" + past_month + "-" + past_day;
       }
+      return new_date;
+    };
 
-      return pastTime;
+    // 给消息改时间
+    const pre_change_date = (past_date) => {
+      let current_date = fomat_date(new Date());
+      let past_year = past_date.slice(0, 4);
+      let past_month = past_date.slice(5, 7);
+      let past_day = past_date.slice(8, 10);
+
+      let current_year = current_date.slice(0, 4);
+      let current_month = current_date.slice(5, 7);
+      let current_day = current_date.slice(8, 10);
+
+      let new_date = "";
+
+      if (past_year == current_year) {
+        if (past_month == current_month) {
+          let new_past_day = parseInt(past_day);
+          let new_current_day = parseInt(current_day);
+          if (new_past_day == new_current_day)
+            new_date += past_date.slice(11, 16);
+          else if (new_current_day - new_past_day == 1)
+            new_date += "昨天 " + past_date.slice(11, 16);
+          else
+            new_date +=
+              past_month + "-" + past_day + " " + past_date.slice(11, 16);
+        } else {
+          new_date +=
+            past_month + "-" + past_day + " " + past_date.slice(11, 16);
+        }
+      } else {
+        new_date +=
+          past_year.slice(2, 4) +
+          "-" +
+          past_month +
+          "-" +
+          past_day +
+          " " +
+          past_date.slice(11, 16);
+      }
+      return new_date;
     };
 
     const pull_friends = () => {
@@ -427,7 +482,6 @@ export default {
 
     // 将选择的emoji添加到content
     const onSelectEmoji = (emoji) => {
-      console.log(emoji);
       isOpenEmoji.value = false;
       content.value += emoji.i;
     };
@@ -501,6 +555,25 @@ export default {
       });
     };
 
+    // 为一个时间段内的消息加上统一的时间
+    const add_time = () => {
+      let pre_time = 0;
+
+      for (let i = 0; i < messages.value.length; i++) {
+        messages.value[i].isDisplayTime = false;
+        let messageTimestamp =
+          Date.parse(messages.value[i].message.createtime) / 1000;
+
+        if (messageTimestamp - pre_time > 60 * 3) {
+          messages.value[i].isDisplayTime = true;
+          pre_time = messageTimestamp;
+          messages.value[i].time = pre_change_date(
+            messages.value[i].message.createtime
+          );
+        }
+      }
+    };
+
     const pull_messages = () => {
       if (current_friendshipId.value == -1) return;
       message_currentPage++;
@@ -523,6 +596,8 @@ export default {
             message_loading.value = false;
             if (message_currentPage == 1) scrollToBottom(resp.messages.length);
             else scrollToBottom(resp.messages.length + 1);
+
+            add_time();
           }
         },
       });
@@ -630,6 +705,11 @@ export default {
 
 <style scoped>
 @import "vue3-emoji-picker/css";
+
+.last-message-time {
+  font-size: 10px;
+  color: #c0c0c0;
+}
 
 .makeFriend {
   height: 270px;

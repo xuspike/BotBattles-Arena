@@ -10,6 +10,7 @@ import UserAccountLoginView from '../views/user/account/UserAccountLoginView';
 import UserAccountRegisterView from '../views/user/account/UserAccountRegisterView';
 import AidDynamicIndexView from '../views/dynamic/AidDynamicIndexView';
 import UserAccountAcwingWebReceiveCode from '../views/user/account/UserAccountAcwingWebReceiveCode';
+import PersonalCenter from "../views/user/center/PersonalCenter";
 import UserNoticeView from "../views/user/notice/UserNoticeView";
 import HomeView from '../views/home/HomeView';
 import store from '../store/index';
@@ -91,6 +92,14 @@ const routes = [
     path: '/user/account/register',
     name: "user_account_register",
     component: UserAccountRegisterView,
+    meta: {
+      requestAuth: false,
+    }
+  },
+  {
+    path: '/user/personal/center/',
+    name: "user_personal_center",
+    component: PersonalCenter,
     meta: {
       requestAuth: false,
     }

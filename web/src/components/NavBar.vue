@@ -87,6 +87,13 @@
               <li>
                 <router-link
                   class="dropdown-item"
+                  :to="{ name: 'user_personal_center' }"
+                  >我的信息</router-link
+                >
+              </li>
+              <li>
+                <router-link
+                  class="dropdown-item"
                   :to="{ name: 'user_bot_index' }"
                   >我的Bot</router-link
                 >

@@ -2,98 +2,92 @@
   <div class="container">
     <div class="row">
       <div class="col-3">
-        <div class="card bg-dark" style="margin-top: 20px">
-          <div class="card-body">
-            <img :src="$store.state.user.photo" alt="" style="width: 100%" />
-          </div>
-        </div>
+        <ContentField>
+          <ProfileCard></ProfileCard>
+        </ContentField>
       </div>
       <div class="col-9">
-        <div class="card bg-dark" style="margin-top: 20px">
-          <div class="card-header">
-            <span style="font-size: 130%; color: #fff">我的Bot</span>
-            <button
-              type="button"
-              class="btn btn-primary float-end"
-              data-bs-toggle="modal"
-              data-bs-target="#add-bot-btn"
-            >
-              创建Bot
-            </button>
+        <ContentField>
+          <span style="font-size: 130%; color: #fff">我的Bot</span>
+          <button
+            type="button"
+            class="btn btn-primary float-end"
+            data-bs-toggle="modal"
+            data-bs-target="#add-bot-btn"
+          >
+            创建Bot
+          </button>
 
-            <!-- Modal -->
-            <div
-              class="modal fade"
-              id="add-bot-btn"
-              tabindex="-1"
-              style="color: black"
-            >
-              <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title">创建Bot</h5>
-                    <button
-                      type="button"
-                      class="btn-close"
-                      data-bs-dismiss="modal"
-                      aria-label="Close"
-                    ></button>
+          <!-- Modal -->
+          <div
+            class="modal fade"
+            id="add-bot-btn"
+            tabindex="-1"
+            style="color: black"
+          >
+            <div class="modal-dialog modal-xl">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">创建Bot</h5>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label for="add-bot-title" class="form-label">名称</label>
+                    <input
+                      v-model="botadd.title"
+                      type="text"
+                      class="form-control"
+                      id="add-bot-title"
+                      placeholder="请输入Bot名称"
+                    />
                   </div>
-                  <div class="modal-body">
-                    <div class="mb-3">
-                      <label for="add-bot-title" class="form-label">名称</label>
-                      <input
-                        v-model="botadd.title"
-                        type="text"
-                        class="form-control"
-                        id="add-bot-title"
-                        placeholder="请输入Bot名称"
-                      />
-                    </div>
-                    <div class="mb-3">
-                      <label for="add-bot-description" class="form-label"
-                        >简介</label
-                      >
-                      <textarea
-                        v-model="botadd.description"
-                        class="form-control"
-                        id="add-bot-description"
-                        rows="3"
-                        placeholder="请输入Bot简介"
-                      ></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                      <label for="add-bot-content" class="form-label"
-                        >代码</label
-                      >
-                      <VAceEditor
-                        v-model:value="botadd.content"
-                        @init="editorInit"
-                        lang="c_cpp"
-                        theme="textmate"
-                        style="height: 300px"
-                      />
-                    </div>
-                  </div>
-
-                  <div class="modal-footer">
-                    <div class="error-message">{{ botadd.error_message }}</div>
-                    <button
-                      type="button"
-                      class="btn btn-primary"
-                      @click="add_bot"
+                  <div class="mb-3">
+                    <label for="add-bot-description" class="form-label"
+                      >简介</label
                     >
-                      创建
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-secondary"
-                      data-bs-dismiss="modal"
-                    >
-                      取消
-                    </button>
+                    <textarea
+                      v-model="botadd.description"
+                      class="form-control"
+                      id="add-bot-description"
+                      rows="3"
+                      placeholder="请输入Bot简介"
+                    ></textarea>
                   </div>
+
+                  <div class="mb-3">
+                    <label for="add-bot-content" class="form-label">代码</label>
+                    <VAceEditor
+                      v-model:value="botadd.content"
+                      @init="editorInit"
+                      lang="c_cpp"
+                      theme="textmate"
+                      style="height: 300px"
+                    />
+                  </div>
+                </div>
+
+                <div class="modal-footer">
+                  <div class="error-message">{{ botadd.error_message }}</div>
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    @click="add_bot"
+                  >
+                    创建
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    取消
+                  </button>
                 </div>
               </div>
             </div>
@@ -261,7 +255,7 @@
               </tbody>
             </table>
           </div>
-        </div>
+        </ContentField>
       </div>
     </div>
   </div>
@@ -275,9 +269,13 @@ import { Modal } from "bootstrap/dist/js/bootstrap";
 // 引入编辑器
 import { VAceEditor } from "vue3-ace-editor";
 import ace from "ace-builds";
+import ProfileCard from "../../../components/ProfileCard.vue";
+import ContentField from "../../../components/ContentField.vue";
 export default {
   components: {
     VAceEditor,
+    ProfileCard,
+    ContentField,
   },
   setup() {
     ace.config.set(
@@ -469,12 +467,12 @@ h1 {
 }
 
 .rwd-table {
-  background: #34495e;
+  background: #2e2e2e;
   color: #fff;
   border-radius: 0.4em;
   overflow: hidden;
   tr {
-    border-color: lighten(#34495e, 10%);
+    border-color: lighten(#2e2e2e, 10%);
   }
   th,
   td {
