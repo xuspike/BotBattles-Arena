@@ -310,13 +310,13 @@ public class SnakeGame extends Thread{
         if(botA != null) {
             int flag = 0;
             if(this.loser == "B") flag = 1;
-            Bot new_botA = new Bot(botA.getId(), botA.getUserId(), botA.getTitle(), botA.getDescription(), botA.getContent(), botA.getWinNumber() + flag, botA.getGameNumber() + 1, botA.getCreatetime(), botA.getModifytime());
+            Bot new_botA = new Bot(botA.getId(), botA.getUserId(), botA.getTitle(), botA.getDescription(), botA.getContent(), botA.getWinNumber() + flag, botA.getGameNumber() + 1,botA.getGame(), botA.getLanguage(), botA.getCreatetime(), botA.getModifytime());
             WebSocketServer.botMapper.updateById(new_botA);
         }
         if(botB != null) {
             int flag = 0;
             if(this.loser == "A") flag = 1;
-            Bot new_botB = new Bot(botB.getId(), botB.getUserId(), botB.getTitle(), botB.getDescription(), botB.getContent(), botB.getWinNumber() + flag, botB.getGameNumber() + 1, botB.getCreatetime(), botB.getModifytime());
+            Bot new_botB = new Bot(botB.getId(), botB.getUserId(), botB.getTitle(), botB.getDescription(), botB.getContent(), botB.getWinNumber() + flag, botB.getGameNumber() + 1, botB.getGame(), botB.getLanguage(), botB.getCreatetime(), botB.getModifytime());
             WebSocketServer.botMapper.updateById(new_botB);
         }
     }

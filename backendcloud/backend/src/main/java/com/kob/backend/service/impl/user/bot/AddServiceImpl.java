@@ -31,6 +31,8 @@ public class AddServiceImpl implements AddService {
         String title = data.get("title");
         String description = data.get("description");
         String content = data.get("content");
+        String game = data.get("game");
+        String language = data.get("language");
 
         Map<String, String> map = new HashMap<>();
 
@@ -71,7 +73,7 @@ public class AddServiceImpl implements AddService {
         }
 
         Date now = new Date();
-        Bot bot = new Bot(null, user.getId(), title, description, content, 0, 0, now, now);
+        Bot bot = new Bot(null, user.getId(), title, description, content, 0, 0, game, language, now, now);
 
         botMapper.insert(bot);
         map.put("error_message", "success");
