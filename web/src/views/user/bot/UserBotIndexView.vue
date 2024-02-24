@@ -662,7 +662,7 @@ export default {
 
     const refresh_bots = () => {
       $.ajax({
-        url: "http://127.0.0.1:3000/api/user/bot/getlist/",
+        url: "https://app6102.acapp.acwing.com.cn/api/user/bot/getlist/",
         type: "get",
         headers: {
           Authorization: "Bearer " + store.state.user.token,
@@ -688,7 +688,7 @@ export default {
         return;
       }
       $.ajax({
-        url: "http://127.0.0.1:3000/api/user/bot/add",
+        url: "https://app6102.acapp.acwing.com.cn/api/user/bot/add",
         type: "post",
         data: {
           title: bot.title,
@@ -723,7 +723,7 @@ export default {
 
     const remove_bot = (bot) => {
       $.ajax({
-        url: "http://127.0.0.1:3000/api/user/bot/remove/",
+        url: "https://app6102.acapp.acwing.com.cn/api/user/bot/remove/",
         type: "post",
         data: {
           bot_id: bot.id,
@@ -749,7 +749,7 @@ export default {
 
     const update_bot = (bot) => {
       $.ajax({
-        url: "http://127.0.0.1:3000/api/user/bot/update/",
+        url: "https://app6102.acapp.acwing.com.cn/api/user/bot/update/",
         type: "post",
         data: {
           bot_id: bot.id,
@@ -823,7 +823,6 @@ export default {
           });
           return;
         }
-        console.log(valid);
         if (valid) {
           showCreateDialog.value = false;
           add_bot();
@@ -1009,6 +1008,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
+::v-deep.card-container {
+  background-color: #ffffff 9m !important;
+}
 div.error-message {
   color: red;
 }

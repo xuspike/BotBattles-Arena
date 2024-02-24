@@ -123,11 +123,11 @@ export default {
 
     const pull_page = (page) => {
       current_page = page;
-      let url = "http://127.0.0.1:3000/api/record/getlist/";
+      let url = "https://app6102.acapp.acwing.com.cn/api/record/getlist/";
       if (mode.value === "五子棋")
-        url = "http://127.0.0.1:3000/api/gobang_record/getlist/";
+        url = "https://app6102.acapp.acwing.com.cn/api/gobang_record/getlist/";
       else if (mode.value === "重力棋")
-        url = "http://127.0.0.1:3000/api/gravity_record/getlist/";
+        url = "https://app6102.acapp.acwing.com.cn/api/gravity_record/getlist/";
       $.ajax({
         url: url,
         type: "get",

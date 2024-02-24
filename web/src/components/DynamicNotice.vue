@@ -114,7 +114,7 @@ export default {
     let noticeCount = ref(0);
     const pull_notices = () => {
       $.ajax({
-        url: "http://127.0.0.1:3000/api/notice/dynamic/getlist/",
+        url: "https://app6102.acapp.acwing.com.cn/api/notice/dynamic/getlist/",
         type: "get",
         data: {
           userId: store.state.user.id,
@@ -134,7 +134,7 @@ export default {
 
     const changeNoticeStatus = (noticeId, status) => {
       $.ajax({
-        url: "http://127.0.0.1:3000/api/notice/dynamic/status/change/",
+        url: "https://app6102.acapp.acwing.com.cn/api/notice/dynamic/status/change/",
         type: "post",
         data: {
           noticeId,

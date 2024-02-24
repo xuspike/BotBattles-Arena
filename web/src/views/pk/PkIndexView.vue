@@ -116,7 +116,7 @@ export default {
   },
   setup() {
     const store = useStore();
-    const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;
+    const socketUrl = `wss://app6102.acapp.acwing.com.cn/websocket/${store.state.user.token}/`;
     let move_music = new Audio(require("@/assets/sound/蛇移动声音.wav"));
     let drop_music = new Audio(
       require("@/assets/sound/在棋盘上落子的声音.mp3")

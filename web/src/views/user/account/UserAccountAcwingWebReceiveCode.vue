@@ -13,7 +13,7 @@ export default {
     const myRoute = useRoute();
     const store = useStore();
     $.ajax({
-      url: "http://127.0.0.1:3000/api/user/account/acwing/web/receive_code/",
+      url: "https://app6102.acapp.acwing.com.cn/api/user/account/acwing/web/receive_code/",
       type: "get",
       data: {
         code: myRoute.query.code,

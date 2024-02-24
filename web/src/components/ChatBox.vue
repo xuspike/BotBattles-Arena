@@ -51,8 +51,8 @@
                       :size="30"
                     ></el-avatar>
                   </el-col>
-                  <el-col :span="1"></el-col>
-                  <el-col :span="13">
+                  <el-col :span="2"></el-col>
+                  <el-col :span="12">
                     <div style="color: gray; font-size: 9pt">
                       {{ user.username }}
                     </div>
@@ -274,7 +274,7 @@ export default {
   },
   setup() {
     const store = useStore();
-    const socketUrl = `ws://127.0.0.1:3000/websocket/single/${store.state.user.token}/`;
+    const socketUrl = `wss://app6102.acapp.acwing.com.cn/websocket/single/${store.state.user.token}/`;
     const friendSet = new Set();
 
     const search_loading = ref(false);
@@ -311,7 +311,7 @@ export default {
     const pull_SearchUsers = () => {
       search_currentPage += 1;
       $.ajax({
-        url: "http://127.0.0.1:3000/api/user/search/",
+        url: "https://app6102.acapp.acwing.com.cn/api/user/search/",
         type: "get",
         data: {
           username: search_username.value,
@@ -343,7 +343,7 @@ export default {
 
     const sendFriendNotice = (user) => {
       $.ajax({
-        url: "http://127.0.0.1:3000/api/friend/notice/send/",
+        url: "https://app6102.acapp.acwing.com.cn/api/friend/notice/send/",
         type: "post",
         data: {
           senderId: store.state.user.id,
@@ -450,7 +450,7 @@ export default {
 
     const pull_friends = () => {
       $.ajax({
-        url: "http://127.0.0.1:3000/api/friend/getlist/",
+        url: "https://app6102.acapp.acwing.com.cn/api/friend/getlist/",
         type: "get",
         data: {
           userId: store.state.user.id,
@@ -488,7 +488,7 @@ export default {
 
     const init_msgCnt = (friendshipId, type) => {
       $.ajax({
-        url: "http://127.0.0.1:3000/api/friendship/msgCnt/init/",
+        url: "https://app6102.acapp.acwing.com.cn/api/friendship/msgCnt/init/",
         type: "post",
         data: {
           friendshipId,
@@ -578,7 +578,7 @@ export default {
       if (current_friendshipId.value == -1) return;
       message_currentPage++;
       $.ajax({
-        url: "http://127.0.0.1:3000/api/get/friend/messages/",
+        url: "https://app6102.acapp.acwing.com.cn/api/get/friend/messages/",
         type: "get",
         data: {
           friendshipId: current_friendshipId.value,

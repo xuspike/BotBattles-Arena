@@ -127,7 +127,9 @@ export default {
       store.dispatch("uploadImage", {
         file,
         success(imgUrl) {
+          console.log(imgUrl);
           personalEditInfo.photo = imgUrl;
+          ElMessage.success("头像上传成功！");
           //+ "?x-oss-process=image/resize,h_500,m_lfit";
         },
       });
@@ -139,11 +141,13 @@ export default {
         personalEditInfo.photo === store.state.user.photo &&
         personalEditInfo.resume === store.state.user.resume
       ) {
+        ElMessage.error("未修改任何信息！");
         return;
       }
 
+      console.log(personalEditInfo);
       $.ajax({
-        url: "http://127.0.0.1:3000/api/user/info/update/",
+        url: "https://app6102.acapp.acwing.com.cn/api/user/info/update/",
         type: "post",
         headers: {
           Authorization: "Bearer " + store.state.user.token,

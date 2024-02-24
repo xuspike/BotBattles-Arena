@@ -71,7 +71,7 @@ export default {
     let noticeCount = ref(0);
     const pull_notices = () => {
       $.ajax({
-        url: "http://127.0.0.1:3000/api/friend/notice/getlist/",
+        url: "https://app6102.acapp.acwing.com.cn/api/friend/notice/getlist/",
         type: "get",
         data: {
           userId: store.state.user.id,
@@ -91,7 +91,7 @@ export default {
 
     const isAcceptQuest = (noticeId, operation) => {
       $.ajax({
-        url: "http://127.0.0.1:3000/api/friend/notice/isAccept/",
+        url: "https://app6102.acapp.acwing.com.cn/api/friend/notice/isAccept/",
         type: "post",
         data: {
           noticeId,

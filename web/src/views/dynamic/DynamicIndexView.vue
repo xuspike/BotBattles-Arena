@@ -44,18 +44,29 @@
                     </el-row>
                   </template>
                   <el-upload
-                    v-model:file-list="fileList"
-                    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
                     list-type="picture-card"
-                    :on-preview="handlePictureCardPreview"
+                    :http-request="uploadPhoto"
                     :on-remove="handleRemove"
-                    style="background-color: #2e2e2e"
+                    :on-preview="handleReshow"
+                    :before-upload="beforePhotoUpload"
+                    :limit="6"
                   >
                     <el-icon><Plus /></el-icon>
-                    <el-dialog v-model="dialogVisible">
-                      <img w-full :src="dialogImageUrl" alt="Preview Image" />
-                    </el-dialog>
+                    <template #tip>
+                      <div class="el-upload__tip">
+                        大小不超过2M,图片不超过6张
+                      </div>
+                    </template>
                   </el-upload>
+
+                  <el-dialog v-model="dialogVisible">
+                    <img
+                      w-full
+                      :src="dialogImageUrl"
+                      style="max-width: 100%"
+                      alt=""
+                    />
+                  </el-dialog>
                 </el-collapse-item>
               </el-collapse>
             </div>
@@ -94,18 +105,29 @@
                     </el-row>
                   </template>
                   <el-upload
-                    v-model:file-list="fileList"
-                    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
                     list-type="picture-card"
-                    :on-preview="handlePictureCardPreview"
+                    :http-request="uploadPhoto"
                     :on-remove="handleRemove"
-                    style="background-color: #2e2e2e"
+                    :on-preview="handleReshow"
+                    :before-upload="beforePhotoUpload"
+                    :limit="6"
                   >
                     <el-icon><Plus /></el-icon>
-                    <el-dialog v-model="dialogVisible">
-                      <img w-full :src="dialogImageUrl" alt="Preview Image" />
-                    </el-dialog>
+                    <template #tip>
+                      <div class="el-upload__tip">
+                        大小不超过2M,图片不超过6张
+                      </div>
+                    </template>
                   </el-upload>
+
+                  <el-dialog v-model="dialogVisible">
+                    <img
+                      w-full
+                      :src="dialogImageUrl"
+                      style="max-width: 100%"
+                      alt=""
+                    />
+                  </el-dialog>
                 </el-collapse-item>
               </el-collapse></div
           ></el-tab-pane>
@@ -172,6 +194,20 @@
               white-space: pre-line;
             "
           ></pre>
+          <span
+            v-for="item in dynamic.parent.new_photos.length"
+            :key="item"
+            style="margin-right: 4px"
+          >
+            <el-image
+              style="width: 100px; height: 100px"
+              :src="dynamic.parent.new_photos[item - 1]"
+              :zoom-rate="1.2"
+              :preview-src-list="dynamic.parent.new_photos"
+              :initial-index="item - 1"
+              fit="cover"
+            />
+          </span>
         </el-col>
       </el-row>
       <div
@@ -457,26 +493,33 @@ export default {
     const is_get_content = ref(false); // 判断前端是否已经渲染完，从而正常获取id
     let current_page = 0;
     let is_liked = [];
+    let photo_list = ref([]);
 
     // 用来存储每个dynamicId在dynamics中的位置
     let hashmap = new Map();
     let status = new Map();
-    const fileList = ref([
-      {
-        name: "food.jpeg",
-        url: "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100",
-      },
-      {
-        name: "food.jpeg",
-        url: "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100",
-      },
-    ]);
 
-    const dialogImageUrl = ref("");
+    const dialogImageUrl = ref(null);
     const dialogVisible = ref(false);
 
-    const handleRemove = (uploadFile, uploadFiles) => {
-      console.log(uploadFile, uploadFiles);
+    const handleRemove = (file) => {
+      photo_list.value.pop(file.response);
+    };
+
+    const handleReshow = (file) => {
+      dialogImageUrl.value = file.url;
+      dialogVisible.value = true;
+    };
+
+    const beforePhotoUpload = (rawFile) => {
+      if (rawFile.type !== "image/jpeg" && rawFile.type !== "image/png") {
+        ElMessage.error("picture must be JPG/PNG format!");
+        return false;
+      } else if (rawFile.size / 1024 / 1024 > 2) {
+        ElMessage.error("picture size can not exceed 2MB!");
+        return false;
+      }
+      return true;
     };
 
     const handlePictureCardPreview = (uploadFile) => {
@@ -505,14 +548,14 @@ export default {
       }
       let photos = "";
       let flag = false;
-      for (let i = 0; i < fileList.value.length; i++) {
+      for (let i = 0; i < photo_list.value.length; i++) {
         if (!flag) flag = true;
         else photos += "%";
-        photos += fileList.value[i].url;
+        photos += photo_list.value[i];
       }
 
       $.ajax({
-        url: "http://127.0.0.1:3000/api/dynamic/create/",
+        url: "https://app6102.acapp.acwing.com.cn/api/dynamic/create/",
         type: "post",
         data: {
           userId: store.state.user.id,
@@ -580,7 +623,7 @@ export default {
     const pull_dynamics = () => {
       current_page += 1;
       $.ajax({
-        url: "http://127.0.0.1:3000/api/dynamic/getlist/",
+        url: "https://app6102.acapp.acwing.com.cn/api/dynamic/getlist/",
         type: "get",
         data: {
           page: current_page,
@@ -603,6 +646,8 @@ export default {
               resp.dynamics[i].foldPostVisible = false;
               resp.dynamics[i].textarea = "";
               resp.dynamics[i].parent.isIconClicked = false;
+              resp.dynamics[i].parent.new_photos =
+                resp.dynamics[i].parent.photos.split("%");
               if (is_liked.includes(resp.dynamics[i].parent.id))
                 resp.dynamics[i].parent.isIconClicked = true;
               resp.dynamics[i].is_unfold = true;
@@ -642,7 +687,7 @@ export default {
 
     const deleteDynamic = (dynamicId) => {
       $.ajax({
-        url: "http://127.0.0.1:3000/api/dynamic/delete/",
+        url: "https://app6102.acapp.acwing.com.cn/api/dynamic/delete/",
         type: "get",
         data: {
           dynamicId,
@@ -702,7 +747,7 @@ export default {
     const post_like = (dynamic, num) => {
       console.log(num);
       $.ajax({
-        url: "http://127.0.0.1:3000/api/dynamic/give/like/",
+        url: "https://app6102.acapp.acwing.com.cn/api/dynamic/give/like/",
         type: "post",
         data: {
           dynamicId: dynamic.id,
@@ -777,6 +822,18 @@ export default {
       else dynamic.foldPostVisible = true;
     };
 
+    const uploadPhoto = (data) => {
+      let file = data.file;
+      store.dispatch("uploadImage", {
+        file,
+        success(imgUrl) {
+          ElMessage.success("图片上传成功！");
+          photo_list.value.push(imgUrl);
+          //+ "?x-oss-process=image/resize,h_500,m_lfit";
+        },
+      });
+    };
+
     onMounted(() => {
       getLocalStorage();
     });
@@ -786,12 +843,14 @@ export default {
       dynamics,
       textarea,
       store,
-      fileList,
       dialogImageUrl,
       dialogVisible,
       loading,
       disabled,
       is_upload_visiable,
+      beforePhotoUpload,
+      photo_list,
+      handleReshow,
       handleRemove,
       handlePictureCardPreview,
       create_dynamic,
@@ -805,6 +864,7 @@ export default {
       isDynamicLiked,
       openPostContent,
       judge_is_overflow,
+      uploadPhoto,
     };
   },
 };

@@ -50,7 +50,7 @@ p {
 }
 
 .card-container {
-  background-color: #ffffff;
+  background-color: #2e2e2e;
   border-radius: 5px;
   color: #b3b8cd;
   padding-top: 30px;
