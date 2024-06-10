@@ -286,7 +286,7 @@ export default {
       const dynamicId = route.params.dynamicId;
 
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/dynamic/getAid/",
+        url: "https://xrookie.xyz/api/dynamic/getAid/",
         type: "get",
         data: {
           dynamicId,
@@ -331,7 +331,7 @@ export default {
     const post_like = (dynamic, num) => {
       console.log(num);
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/dynamic/give/like/",
+        url: "https://xrookie.xyz/api/dynamic/give/like/",
         type: "post",
         data: {
           dynamicId: dynamic.id,

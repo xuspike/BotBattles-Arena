@@ -16,7 +16,7 @@
           <th>玩家A</th>
           <th v-if="mode === '贪吃蛇'">红方</th>
           <th v-else-if="mode === '五子棋'">白方</th>
-          <th else>黄方</th>
+          <th v-else>黄方</th>
           <th>玩家B</th>
           <th>对战结果</th>
           <th>对战时间</th>
@@ -123,11 +123,11 @@ export default {
 
     const pull_page = (page) => {
       current_page = page;
-      let url = "https://app6102.acapp.acwing.com.cn/api/record/getlist/";
+      let url = "https://xrookie.xyz/api/record/getlist/";
       if (mode.value === "五子棋")
-        url = "https://app6102.acapp.acwing.com.cn/api/gobang_record/getlist/";
+        url = "https://xrookie.xyz/api/gobang_record/getlist/";
       else if (mode.value === "重力棋")
-        url = "https://app6102.acapp.acwing.com.cn/api/gravity_record/getlist/";
+        url = "https://xrookie.xyz/api/gravity_record/getlist/";
       $.ajax({
         url: url,
         type: "get",

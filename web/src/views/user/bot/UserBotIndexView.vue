@@ -2,9 +2,9 @@
   <div class="container">
     <div class="row">
       <div class="col-3">
-        <ContentField>
-          <ProfileCard></ProfileCard>
-        </ContentField>
+        <WhiteContentField>
+          <WhiteProfileCard></WhiteProfileCard>
+        </WhiteContentField>
       </div>
       <div class="col-9">
         <el-card shadow="always" class="bot-card" style="user-select: none">
@@ -513,14 +513,14 @@ import { useStore } from "vuex";
 // 引入编辑器
 import { VAceEditor } from "vue3-ace-editor";
 import ace from "ace-builds";
-import ProfileCard from "../../../components/ProfileCard.vue";
-import ContentField from "../../../components/ContentField.vue";
+import WhiteProfileCard from "../../../components/WhiteProfileCard.vue";
+import WhiteContentField from "../../../components/WhiteContentField.vue";
 import { ElMessage } from "element-plus";
 export default {
   components: {
     VAceEditor,
-    ProfileCard,
-    ContentField,
+    WhiteProfileCard,
+    WhiteContentField,
   },
   setup() {
     ace.config.set(
@@ -662,7 +662,7 @@ export default {
 
     const refresh_bots = () => {
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/user/bot/getlist/",
+        url: "https://xrookie.xyz/api/user/bot/getlist/",
         type: "get",
         headers: {
           Authorization: "Bearer " + store.state.user.token,
@@ -688,7 +688,7 @@ export default {
         return;
       }
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/user/bot/add",
+        url: "https://xrookie.xyz/api/user/bot/add",
         type: "post",
         data: {
           title: bot.title,
@@ -723,7 +723,7 @@ export default {
 
     const remove_bot = (bot) => {
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/user/bot/remove/",
+        url: "https://xrookie.xyz/api/user/bot/remove/",
         type: "post",
         data: {
           bot_id: bot.id,
@@ -749,7 +749,7 @@ export default {
 
     const update_bot = (bot) => {
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/user/bot/update/",
+        url: "https://xrookie.xyz/api/user/bot/update/",
         type: "post",
         data: {
           bot_id: bot.id,
@@ -1008,9 +1008,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-::v-deep.card-container {
-  background-color: #ffffff 9m !important;
-}
 div.error-message {
   color: red;
 }

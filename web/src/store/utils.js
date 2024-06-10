@@ -9,7 +9,7 @@ export default {
   actions: {
     uploadImage(context, data) {
         //填写获取签名的地址
-        const getPolicyApiUrl = 'https://app6102.acapp.acwing.com.cn/api/ali/oss/policy/'; //获取oss签名的地址
+        const getPolicyApiUrl = 'https://xrookie.xyz/api/ali/oss/policy/'; //获取oss签名的地址
         $.ajax({
             url: getPolicyApiUrl, 
             type: "GET",

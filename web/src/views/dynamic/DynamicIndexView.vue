@@ -555,7 +555,7 @@ export default {
       }
 
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/dynamic/create/",
+        url: "https://xrookie.xyz/api/dynamic/create/",
         type: "post",
         data: {
           userId: store.state.user.id,
@@ -623,7 +623,7 @@ export default {
     const pull_dynamics = () => {
       current_page += 1;
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/dynamic/getlist/",
+        url: "https://xrookie.xyz/api/dynamic/getlist/",
         type: "get",
         data: {
           page: current_page,
@@ -687,7 +687,7 @@ export default {
 
     const deleteDynamic = (dynamicId) => {
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/dynamic/delete/",
+        url: "https://xrookie.xyz/api/dynamic/delete/",
         type: "get",
         data: {
           dynamicId,
@@ -747,7 +747,7 @@ export default {
     const post_like = (dynamic, num) => {
       console.log(num);
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/dynamic/give/like/",
+        url: "https://xrookie.xyz/api/dynamic/give/like/",
         type: "post",
         data: {
           dynamicId: dynamic.id,

@@ -274,7 +274,7 @@ export default {
   },
   setup() {
     const store = useStore();
-    const socketUrl = `wss://app6102.acapp.acwing.com.cn/websocket/single/${store.state.user.token}/`;
+    const socketUrl = `wss://xrookie.xyz/websocket/single/${store.state.user.token}/`;
     const friendSet = new Set();
 
     const search_loading = ref(false);
@@ -311,7 +311,7 @@ export default {
     const pull_SearchUsers = () => {
       search_currentPage += 1;
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/user/search/",
+        url: "https://xrookie.xyz/api/user/search/",
         type: "get",
         data: {
           username: search_username.value,
@@ -343,7 +343,7 @@ export default {
 
     const sendFriendNotice = (user) => {
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/friend/notice/send/",
+        url: "https://xrookie.xyz/api/friend/notice/send/",
         type: "post",
         data: {
           senderId: store.state.user.id,
@@ -450,7 +450,7 @@ export default {
 
     const pull_friends = () => {
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/friend/getlist/",
+        url: "https://xrookie.xyz/api/friend/getlist/",
         type: "get",
         data: {
           userId: store.state.user.id,
@@ -488,7 +488,7 @@ export default {
 
     const init_msgCnt = (friendshipId, type) => {
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/friendship/msgCnt/init/",
+        url: "https://xrookie.xyz/api/friendship/msgCnt/init/",
         type: "post",
         data: {
           friendshipId,
@@ -578,7 +578,7 @@ export default {
       if (current_friendshipId.value == -1) return;
       message_currentPage++;
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/get/friend/messages/",
+        url: "https://xrookie.xyz/api/get/friend/messages/",
         type: "get",
         data: {
           friendshipId: current_friendshipId.value,
@@ -605,7 +605,6 @@ export default {
 
     let socket = null;
 
-    // 待完成
     const sendMessage = () => {
       if (content.value == "") {
         ElMessage({

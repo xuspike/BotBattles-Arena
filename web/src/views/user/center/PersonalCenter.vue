@@ -147,7 +147,7 @@ export default {
 
       console.log(personalEditInfo);
       $.ajax({
-        url: "https://app6102.acapp.acwing.com.cn/api/user/info/update/",
+        url: "https://xrookie.xyz/api/user/info/update/",
         type: "post",
         headers: {
           Authorization: "Bearer " + store.state.user.token,

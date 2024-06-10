@@ -26,7 +26,7 @@ public class AliOssConfig {
      * 设置上传回调URL，即回调服务器地址，用于处理应用服务器与OSS之间的通信。OSS会在文件上传完成后，把文件上传信息通过此回调URL发送给应用服务器。
      *
      */
-    public final static String callback_url = "https://app6102.acapp.acwing.com.cn/api/ali/oss/receive/";
+    public final static String callback_url = "https://xrookie.xyz/api/ali/oss/receive/";
 
     /*
      * ============= 配置上传过期时间、大小等等 =========
